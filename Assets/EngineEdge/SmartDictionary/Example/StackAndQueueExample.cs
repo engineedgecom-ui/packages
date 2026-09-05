@@ -62,7 +62,7 @@ namespace EngineEdge.SmartDictionary.Example
                 matchmakingQueue.Enqueue(new CharacterProfile("Merlin", "Mage"));
             }
 
-            Debug.Log(matchmakingQueue.ToStandardJson(prettyPrint: true));
+            Debug.Log(JsonUtility.ToJson(this.matchmakingQueue, true));
         }
 
         private void Log(string message)

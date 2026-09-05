@@ -42,7 +42,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Awake()
         {
-            Debug.Log(badgeOwners.ToStandardJson(prettyPrint: true));
+            Debug.Log(JsonUtility.ToJson(this.badgeOwners, true));
         }
 
         private void Log(string message)

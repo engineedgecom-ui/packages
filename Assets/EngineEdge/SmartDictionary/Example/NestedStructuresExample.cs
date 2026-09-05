@@ -114,7 +114,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Awake()
         {
-            Debug.Log(heroSkillTrees.ToStandardJson(prettyPrint: true));
+            Debug.Log(JsonUtility.ToJson(this.heroSkillTrees, true));
         }
 
         private void Log(string message)

@@ -61,7 +61,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Awake()
         {
-            Debug.Log(registeredHeroes.ToStandardJson(prettyPrint: true));
+            Debug.Log(JsonUtility.ToJson(this.registeredHeroes, true));
         }
 
         private void Start()

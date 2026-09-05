@@ -67,8 +67,7 @@ namespace EngineEdge.SmartDictionary
 
         // ── Configuration ─────────────────────────────────────────────────────────
 
-        [SerializeField]
-        [Tooltip("If true, dictionary mutation events (OnEntryAdded, OnEntryRemoved, etc.) will be dispatched.")]
+        [NonSerialized]
         private bool _eventsEnabled = true;
 
         /// <summary>
@@ -83,26 +82,21 @@ namespace EngineEdge.SmartDictionary
             set => _eventsEnabled = value;
         }
 
-        // ── Serialized Unity Events ───────────────────────────────────────────────
+        // ── NonSerialized Unity Events (Data-only JSON serialization) ─────────────
 
-        [SerializeField]
-        [Tooltip("Fired when a new entry is added (only if EventsEnabled is true).")]
+        [NonSerialized]
         private UnityEvent _onEntryAddedEvent = new UnityEvent();
 
-        [SerializeField]
-        [Tooltip("Fired when an entry is removed (only if EventsEnabled is true).")]
+        [NonSerialized]
         private UnityEvent _onEntryRemovedEvent = new UnityEvent();
 
-        [SerializeField]
-        [Tooltip("Fired when an existing entry's value is replaced (only if EventsEnabled is true).")]
+        [NonSerialized]
         private UnityEvent _onEntryUpdatedEvent = new UnityEvent();
 
-        [SerializeField]
-        [Tooltip("Fired when the dictionary is cleared (only if EventsEnabled is true).")]
+        [NonSerialized]
         private UnityEvent _onClearedEvent = new UnityEvent();
 
-        [SerializeField]
-        [Tooltip("Fired with the new count when entries change (only if EventsEnabled is true).")]
+        [NonSerialized]
         private DictionaryCountEvent _onCountChangedEvent = new DictionaryCountEvent();
 
         /// <summary>Serialized UnityEvent invoked when a new entry is added.</summary>

@@ -95,7 +95,7 @@ namespace EngineEdge.SmartDictionary.Example
                 PopulateSampleData();
             }
 
-            Debug.Log(saveData.heroSkillTrees.ToStandardJson(prettyPrint: true));
+            Debug.Log(JsonUtility.ToJson(saveData, true));
         }
 
         private void Start()

@@ -42,10 +42,7 @@ namespace EngineEdge.SmartDictionary
         /// </summary>
         public event Action<int> OnCountChanged;
 
-        // ── Configuration ─────────────────────────────────────────────────────────
-
-        [SerializeField]
-        [Tooltip("If true, set-mutation events (OnItemAdded, OnItemRemoved, etc.) will be dispatched.")]
+        [NonSerialized]
         private bool _eventsEnabled = true;
 
         /// <summary>
@@ -58,22 +55,18 @@ namespace EngineEdge.SmartDictionary
             set => _eventsEnabled = value;
         }
 
-        // ── Serialized Unity Events ───────────────────────────────────────────────
+        // ── NonSerialized Unity Events (Data-only JSON serialization) ─────────────
 
-        [SerializeField]
-        [Tooltip("Fired when a new item is added (only if EventsEnabled is true).")]
+        [NonSerialized]
         private UnityEvent _onItemAddedEvent = new UnityEvent();
 
-        [SerializeField]
-        [Tooltip("Fired when an item is removed (only if EventsEnabled is true).")]
+        [NonSerialized]
         private UnityEvent _onItemRemovedEvent = new UnityEvent();
 
-        [SerializeField]
-        [Tooltip("Fired when the set is cleared (only if EventsEnabled is true).")]
+        [NonSerialized]
         private UnityEvent _onClearedEvent = new UnityEvent();
 
-        [SerializeField]
-        [Tooltip("Fired with the new count when items change (only if EventsEnabled is true).")]
+        [NonSerialized]
         private HashSetCountEvent _onCountChangedEvent = new HashSetCountEvent();
 
         /// <summary>Serialized UnityEvent invoked when a new item is added.</summary>
