@@ -221,4 +221,127 @@ namespace EngineEdge.SmartDictionary.Example
         public override int GetHashCode() => HashCode.Combine(badgeId, title != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(title) : 0);
         public override string ToString() => $"#{badgeId} {title}";
     }
+
+    // =========================================================================
+    //  NESTED CLASSES (C# Inner Classes + Hierarchical Composition)
+    // =========================================================================
+
+    /// <summary>
+    /// Demonstrates nested C# classes used both as Dictionary Keys and Values.
+    /// <list type="bullet">
+    ///   <item><description><see cref="WaypointNavigation.Key"/> contains an inner <see cref="WaypointNavigation.Key.Coordinate"/> class.</description></item>
+    ///   <item><description><see cref="WaypointNavigation.Value"/> contains an inner <see cref="WaypointNavigation.Value.Requirement"/> class.</description></item>
+    /// </list>
+    /// </summary>
+    public static class WaypointNavigation
+    {
+        /// <summary>
+        /// Nested class Key that itself contains an inner <see cref="Coordinate"/> class.
+        /// Implements <see cref="IEquatable{Key}"/> for deep value equality.
+        /// </summary>
+        [Serializable]
+        public class Key : IEquatable<Key>
+        {
+            [SerializeField]
+            private string _zoneName;
+
+            [SerializeField]
+            private Coordinate _coord = new Coordinate();
+
+            /// <summary>
+            /// Deeply nested coordinate class.
+            /// </summary>
+            [Serializable]
+            public class Coordinate : IEquatable<Coordinate>
+            {
+                [SerializeField] private int _x;
+                [SerializeField] private int _y;
+
+                public int X => _x;
+                public int Y => _y;
+
+                public Coordinate() { }
+                public Coordinate(int x, int y) { _x = x; _y = y; }
+
+                public bool Equals(Coordinate other)
+                {
+                    if (ReferenceEquals(null, other)) return false;
+                    if (ReferenceEquals(this, other)) return true;
+                    return _x == other._x && _y == other._y;
+                }
+
+                public override bool Equals(object obj) => obj is Coordinate other && Equals(other);
+                public override int GetHashCode() => HashCode.Combine(_x, _y);
+                public override string ToString() => $"({_x}, {_y})";
+            }
+
+            public string ZoneName => _zoneName;
+            public Coordinate Coord => _coord;
+
+            public Key() { }
+            public Key(string zoneName, Coordinate coord)
+            {
+                _zoneName = zoneName;
+                _coord = coord ?? new Coordinate();
+            }
+
+            public bool Equals(Key other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return string.Equals(_zoneName, other._zoneName, StringComparison.OrdinalIgnoreCase) &&
+                       Equals(_coord, other._coord);
+            }
+
+            public override bool Equals(object obj) => obj is Key other && Equals(other);
+            public override int GetHashCode() => HashCode.Combine(
+                _zoneName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(_zoneName) : 0,
+                _coord != null ? _coord.GetHashCode() : 0
+            );
+
+            public override string ToString() => $"{_zoneName} {_coord}";
+        }
+
+        /// <summary>
+        /// Nested class Value that itself contains an inner <see cref="Requirement"/> class.
+        /// </summary>
+        [Serializable]
+        public class Value
+        {
+            [SerializeField]
+            private string _beaconName;
+
+            [SerializeField]
+            private Requirement _requirement = new Requirement();
+
+            /// <summary>
+            /// Deeply nested requirement class.
+            /// </summary>
+            [Serializable]
+            public class Requirement
+            {
+                [SerializeField] private int _minLevel;
+                [SerializeField] private int _goldCost;
+
+                public int MinLevel => _minLevel;
+                public int GoldCost => _goldCost;
+
+                public Requirement() { }
+                public Requirement(int minLevel, int goldCost) { _minLevel = minLevel; _goldCost = goldCost; }
+                public override string ToString() => $"Lvl {_minLevel}, {_goldCost}g";
+            }
+
+            public string BeaconName => _beaconName;
+            public Requirement Req => _requirement;
+
+            public Value() { }
+            public Value(string beaconName, Requirement requirement)
+            {
+                _beaconName = beaconName;
+                _requirement = requirement ?? new Requirement();
+            }
+
+            public override string ToString() => $"{_beaconName} ({_requirement})";
+        }
+    }
 }

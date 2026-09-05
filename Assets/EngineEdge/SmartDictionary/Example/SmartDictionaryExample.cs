@@ -53,7 +53,25 @@ namespace EngineEdge.SmartDictionary.Example
             { new PlayerBadge(103, "Iron Wall"),    "Player_Charlie" }
         };
 
-        [Header("5. Set of Classes (ObservableHashSet)")]
+        [Header("5. Nested Class Key & Value (ObservableDictionary)")]
+        [Tooltip("Demonstrates deeply nested C# classes: Key is WaypointNavigation.Key (contains Coordinate), Value is WaypointNavigation.Value (contains Requirement).")]
+        public ObservableDictionary<WaypointNavigation.Key, WaypointNavigation.Value> fastTravelWaypoints = new ObservableDictionary<WaypointNavigation.Key, WaypointNavigation.Value>
+        {
+            {
+                new WaypointNavigation.Key("Sanctuary", new WaypointNavigation.Key.Coordinate(100, 250)),
+                new WaypointNavigation.Value("Ancient Obelisk", new WaypointNavigation.Value.Requirement(1, 0))
+            },
+            {
+                new WaypointNavigation.Key("Dragon Peak", new WaypointNavigation.Key.Coordinate(750, 920)),
+                new WaypointNavigation.Value("Summit Beacon", new WaypointNavigation.Value.Requirement(50, 500))
+            },
+            {
+                new WaypointNavigation.Key("Sunken Ruins", new WaypointNavigation.Key.Coordinate(320, 110)),
+                new WaypointNavigation.Value("Submerged Portal", new WaypointNavigation.Value.Requirement(30, 250))
+            }
+        };
+
+        [Header("6. Set of Classes (ObservableHashSet)")]
         [Tooltip("Reactive set containing custom class objects (CharacterProfile) with duplicate rejection and events.")]
         public ObservableHashSet<CharacterProfile> registeredHeroes = new ObservableHashSet<CharacterProfile>
         {
@@ -63,7 +81,7 @@ namespace EngineEdge.SmartDictionary.Example
             new CharacterProfile("Galahad", "Knight")
         };
 
-        [Header("6. Set of Structs (SerializableHashSet)")]
+        [Header("7. Set of Structs (SerializableHashSet)")]
         [Tooltip("Pure serializable set containing custom structs (CombatStats).")]
         public SerializableHashSet<CombatStats> baseStatTemplates = new SerializableHashSet<CombatStats>
         {
@@ -72,11 +90,11 @@ namespace EngineEdge.SmartDictionary.Example
             new CombatStats(1200, 120, 100, 0.20f)
         };
 
-        [Header("7. Stack of Structs (SerializableStack)")]
+        [Header("8. Stack of Structs (SerializableStack)")]
         [Tooltip("LIFO stack containing custom structs (CombatStats snapshots).")]
         public SerializableStack<CombatStats> statHistory = new SerializableStack<CombatStats>();
 
-        [Header("8. Queue of Classes (SerializableQueue)")]
+        [Header("9. Queue of Classes (SerializableQueue)")]
         [Tooltip("FIFO message queue containing custom class instances (CharacterProfile).")]
         public SerializableQueue<CharacterProfile> matchmakingQueue = new SerializableQueue<CharacterProfile>();
 
@@ -457,6 +475,22 @@ namespace EngineEdge.SmartDictionary.Example
             {
                 int totalQuantity = inventory.SumValues();
                 LogAction($"--- LINQ: Total inventory quantity: {totalQuantity} items ---");
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Lookup Nested Key Waypoint"))
+            {
+                // Tests value equality lookup using a new nested instance with identical data
+                var queryKey = new WaypointNavigation.Key("Dragon Peak", new WaypointNavigation.Key.Coordinate(750, 920));
+                if (fastTravelWaypoints.TryGetValue(queryKey, out var dest))
+                {
+                    LogAction($"Nested Key Found: '{queryKey}' => Beacon: '{dest.BeaconName}' ({dest.Req})");
+                }
+                else
+                {
+                    LogAction($"Nested Key '{queryKey}' not found!");
+                }
             }
             GUILayout.EndHorizontal();
 

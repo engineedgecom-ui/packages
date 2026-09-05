@@ -476,6 +476,149 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  heroStats:
+    _serializedPairs:
+    - _key:
+        _heroName: Merlin
+        _heroClass: Mage
+      _value:
+        health: 1200
+        attackPower: 85
+        defense: 95
+        critChance: 0.15
+    - _key:
+        _heroName: Merlin
+        _heroClass: Mage
+      _value:
+        health: 650
+        attackPower: 140
+        defense: 30
+        critChance: 0.35
+    - _key:
+        _heroName: Robin
+        _heroClass: Ranger
+      _value:
+        health: 800
+        attackPower: 110
+        defense: 50
+        critChance: 0.45
+    _eventsEnabled: 1
+    _onEntryAddedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onEntryRemovedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onEntryUpdatedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onClearedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onCountChangedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+  categoryModifiers:
+    _serializedPairs:
+    - _key:
+        categoryName: Heavy Armor
+        tier: 3
+      _value:
+        damageBonus: 0
+        speedMultiplier: 0.85
+        durability: 500
+    - _key:
+        categoryName: Daggers
+        tier: 2
+      _value:
+        damageBonus: 25
+        speedMultiplier: 1.25
+        durability: 150
+    - _key:
+        categoryName: Staves
+        tier: 4
+      _value:
+        damageBonus: 45
+        speedMultiplier: 1.05
+        durability: 200
+  activeSkills:
+    _serializedPairs:
+    - _key:
+        _heroName: Arthur
+        _heroClass: Paladin
+      _value:
+        skillName: Holy Shield
+        manaCost: 25
+        cooldown: 12
+    - _key:
+        _heroName: Merlin
+        _heroClass: Mage
+      _value:
+        skillName: Meteor Strike
+        manaCost: 60
+        cooldown: 20
+    - _key:
+        _heroName: Robin
+        _heroClass: Ranger
+      _value:
+        skillName: Rain of Arrows
+        manaCost: 35
+        cooldown: 8
+  badgeOwners:
+    _serializedPairs:
+    - _key:
+        badgeId: 101
+        title: Grandmaster
+      _value: Player_Alpha
+    - _key:
+        badgeId: 102
+        title: Sharpshooter
+      _value: Player_Bravo
+    - _key:
+        badgeId: 103
+        title: Iron Wall
+      _value: Player_Charlie
+  registeredHeroes:
+    _serializedItems:
+    - _heroName: Arthur
+      _heroClass: Paladin
+    - _heroName: Merlin
+      _heroClass: Mage
+    - _heroName: Robin
+      _heroClass: Ranger
+    - _heroName: Galahad
+      _heroClass: Knight
+    _eventsEnabled: 1
+    _onItemAddedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onItemRemovedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onClearedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onCountChangedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+  baseStatTemplates:
+    _serializedItems:
+    - health: 500
+      attackPower: 50
+      defense: 50
+      critChance: 0.05
+    - health: 800
+      attackPower: 80
+      defense: 70
+      critChance: 0.1
+    - health: 1200
+      attackPower: 120
+      defense: 100
+      critChance: 0.2
+  statHistory:
+    _serializedItems: []
+  matchmakingQueue:
+    _serializedItems: []
   inventory:
     _serializedPairs:
     - _key: Health Potion
@@ -488,6 +631,22 @@ MonoBehaviour:
       _value: 250
     - _key: Magic Scroll
       _value: 3
+    _eventsEnabled: 1
+    _onEntryAddedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onEntryRemovedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onEntryUpdatedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onClearedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onCountChangedEvent:
+      m_PersistentCalls:
+        m_Calls: []
   characterStats:
     _serializedPairs:
     - _key: MovementSpeed

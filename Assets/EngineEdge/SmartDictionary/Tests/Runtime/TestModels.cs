@@ -160,4 +160,82 @@ namespace EngineEdge.SmartDictionary.Tests
 
         public override string ToString() => $"[{rarity}] Badge#{badgeId}";
     }
+
+    /// <summary>
+    /// Test nested class models.
+    /// </summary>
+    public static class TestWaypointNavigation
+    {
+        [Serializable]
+        public class Key : IEquatable<Key>
+        {
+            public string zoneName;
+            public Coordinate coord;
+
+            [Serializable]
+            public class Coordinate : IEquatable<Coordinate>
+            {
+                public int x;
+                public int y;
+
+                public Coordinate() { }
+                public Coordinate(int x, int y) { this.x = x; this.y = y; }
+
+                public bool Equals(Coordinate other)
+                {
+                    if (ReferenceEquals(null, other)) return false;
+                    if (ReferenceEquals(this, other)) return true;
+                    return x == other.x && y == other.y;
+                }
+
+                public override bool Equals(object obj) => obj is Coordinate other && Equals(other);
+                public override int GetHashCode() => unchecked((x * 397) ^ y);
+            }
+
+            public Key() { }
+            public Key(string zoneName, Coordinate coord)
+            {
+                this.zoneName = zoneName;
+                this.coord = coord ?? new Coordinate();
+            }
+
+            public bool Equals(Key other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return string.Equals(zoneName, other.zoneName, StringComparison.OrdinalIgnoreCase) &&
+                       Equals(coord, other.coord);
+            }
+
+            public override bool Equals(object obj) => obj is Key other && Equals(other);
+            public override int GetHashCode() => unchecked(
+                ((zoneName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(zoneName) : 0) * 397) ^
+                (coord != null ? coord.GetHashCode() : 0)
+            );
+        }
+
+        [Serializable]
+        public class Value
+        {
+            public string beaconName;
+            public Requirement requirement;
+
+            [Serializable]
+            public class Requirement
+            {
+                public int minLevel;
+                public int goldCost;
+
+                public Requirement() { }
+                public Requirement(int minLevel, int goldCost) { this.minLevel = minLevel; this.goldCost = goldCost; }
+            }
+
+            public Value() { }
+            public Value(string beaconName, Requirement requirement)
+            {
+                this.beaconName = beaconName;
+                this.requirement = requirement;
+            }
+        }
+    }
 }

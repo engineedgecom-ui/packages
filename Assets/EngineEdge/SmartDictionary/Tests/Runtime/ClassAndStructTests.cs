@@ -180,5 +180,32 @@ namespace EngineEdge.SmartDictionary.Tests
             Assert.AreEqual("Hero1", queue.Dequeue().HeroName);
             Assert.AreEqual("Hero2", queue.Dequeue().HeroName);
         }
+
+        // ------------------------------------------------------------------ //
+        //  7. Nested Class as Key and Value
+        // ------------------------------------------------------------------ //
+
+        [Test]
+        public void Dictionary_NestedClassKeyAndValue_Works()
+        {
+            var dict = new ObservableDictionary<TestWaypointNavigation.Key, TestWaypointNavigation.Value>();
+
+            var key = new TestWaypointNavigation.Key("Dragon Peak", new TestWaypointNavigation.Key.Coordinate(750, 920));
+            var value = new TestWaypointNavigation.Value("Summit Beacon", new TestWaypointNavigation.Value.Requirement(50, 500));
+
+            dict.Add(key, value);
+
+            // Lookup with a distinct new instance (value-equality across nested classes)
+            var lookupKey = new TestWaypointNavigation.Key("Dragon Peak", new TestWaypointNavigation.Key.Coordinate(750, 920));
+            Assert.IsTrue(dict.ContainsKey(lookupKey));
+
+            Assert.AreEqual("Summit Beacon", dict[lookupKey].beaconName);
+            Assert.AreEqual(50, dict[lookupKey].requirement.minLevel);
+            Assert.AreEqual(500, dict[lookupKey].requirement.goldCost);
+
+            // Verify a key with different nested coordinate is NOT found
+            var wrongCoordKey = new TestWaypointNavigation.Key("Dragon Peak", new TestWaypointNavigation.Key.Coordinate(750, 921));
+            Assert.IsFalse(dict.ContainsKey(wrongCoordKey));
+        }
     }
 }
