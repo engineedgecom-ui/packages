@@ -24,6 +24,8 @@ namespace EngineEdge.SmartDictionary.Editor
         // ------------------------------------------------------------------ //
 
         private const float AddBtnHeight     = 22f;
+        private const float EventsBarHeight  = 22f;
+        private const float EventsBoxPadding = 6f;
         private const float ColumnHeaderH    = 16f;
         private const float Padding          = 3f;
         private const float KeyRatio         = 0.42f;
@@ -77,14 +79,14 @@ namespace EngineEdge.SmartDictionary.Editor
 
             totalHeight += AddBtnHeight + Padding * 2f;
 
-            // Unity Events section (only shown if events are enabled)
+            // Events section at the end (always available when expanded)
             var eventsProp = property.FindPropertyRelative("_eventsEnabled");
-            if (eventsProp != null && eventsProp.boolValue)
+            if (eventsProp != null)
             {
-                totalHeight += EditorGUIUtility.singleLineHeight + Padding;
-                if (IsEventsExpanded(property))
+                totalHeight += EventsBarHeight + Padding;
+                if (eventsProp.boolValue && IsEventsExpanded(property))
                 {
-                    totalHeight += GetEventsHeight(property);
+                    totalHeight += GetEventsHeight(property) + EventsBoxPadding * 2f + Padding;
                 }
             }
 
@@ -178,9 +180,9 @@ namespace EngineEdge.SmartDictionary.Editor
             DrawAddButton(addRect, property, pairs);
             currentY += AddBtnHeight + Padding * 2f;
 
-            // ── 5. Unity Events Section (only shown if events are enabled) ──
+            // ── 5. Events Section (at the end) ───────────────────────────
             var eventsProp = property.FindPropertyRelative("_eventsEnabled");
-            if (eventsProp != null && eventsProp.boolValue)
+            if (eventsProp != null)
             {
                 currentY = DrawEventsSection(contentRect.x, currentY, contentRect.width, property);
             }
@@ -200,36 +202,9 @@ namespace EngineEdge.SmartDictionary.Editor
             var fieldDisplayName = string.IsNullOrEmpty(label.text) ? "Dictionary" : label.text;
             var headerText = $"{fieldDisplayName} ({count} {(count == 1 ? "entry" : "entries")})";
 
-            var eventsProp = property.FindPropertyRelative("_eventsEnabled");
-            float toggleWidth = eventsProp != null ? 66f : 0f;
-            var foldoutRect = new Rect(rect.x, rect.y, rect.width - toggleWidth - (toggleWidth > 0 ? 4f : 0f), rect.height);
-
             bool expanded = IsExpanded(property);
-            bool newExpanded = EditorGUI.Foldout(foldoutRect, expanded, new GUIContent(headerText, label.tooltip), true, InspectorStyles.HeaderFoldout);
+            bool newExpanded = EditorGUI.Foldout(rect, expanded, new GUIContent(headerText, label.tooltip), true, InspectorStyles.HeaderFoldout);
             s_FoldoutStates[path] = newExpanded;
-
-            if (eventsProp != null)
-            {
-                var toggleRect = new Rect(rect.xMax - toggleWidth, rect.y + 1f, toggleWidth, rect.height - 2f);
-                bool isEnabled = eventsProp.boolValue;
-
-                var prevBg = GUI.backgroundColor;
-                GUI.backgroundColor = isEnabled ? new Color(0.7f, 1f, 0.7f, 1f) : new Color(1f, 0.6f, 0.6f, 0.8f);
-
-                var content = new GUIContent(
-                    isEnabled ? "⚡ Events" : "⚡ Muted",
-                    isEnabled 
-                        ? "Events: ENABLED\nOnEntryAdded, OnEntryRemoved, etc. will fire on mutations.\nClick to mute." 
-                        : "Events: MUTED\nNo mutation events will fire.\nClick to enable.");
-
-                if (GUI.Button(toggleRect, content, EditorStyles.miniButton))
-                {
-                    eventsProp.boolValue = !isEnabled;
-                    property.serializedObject.ApplyModifiedProperties();
-                }
-
-                GUI.backgroundColor = prevBg;
-            }
         }
 
         private void DrawSearchBar(Rect rect, SerializedProperty property)
@@ -571,7 +546,7 @@ namespace EngineEdge.SmartDictionary.Editor
                 var evtProp = property.FindPropertyRelative(propName);
                 if (evtProp != null)
                 {
-                    height += EditorGUI.GetPropertyHeight(evtProp, true) + 2f;
+                    height += EditorGUI.GetPropertyHeight(evtProp, true) + 4f;
                 }
             }
             return height;
@@ -579,29 +554,84 @@ namespace EngineEdge.SmartDictionary.Editor
 
         private float DrawEventsSection(float x, float y, float width, SerializedProperty property)
         {
+            var eventsProp = property.FindPropertyRelative("_eventsEnabled");
+            if (eventsProp == null) return y;
+
+            bool isEnabled = eventsProp.boolValue;
             var path = property.propertyPath + ".__events";
-            bool expanded = IsEventsExpanded(property);
+            bool isExpanded = IsEventsExpanded(property);
 
-            var foldoutRect = new Rect(x, y, width, EditorGUIUtility.singleLineHeight);
-            expanded = EditorGUI.Foldout(foldoutRect, expanded, new GUIContent("Unity Events (Serialized)", "Inspect and hook up UnityEvent listeners in the Inspector."), true, EditorStyles.foldoutHeader);
-            s_EventsFoldoutStates[path] = expanded;
-            y += EditorGUIUtility.singleLineHeight + Padding;
+            var barRect = new Rect(x, y, width, EventsBarHeight);
+            y += EventsBarHeight + Padding;
 
-            if (expanded)
+            // 1. Draw Background for the Events Bar
+            GUI.Box(barRect, GUIContent.none, InspectorStyles.EventsBar);
+
+            // 2. Status Badge on the right (clickable pill button to toggle enabled/muted)
+            float badgeWidth = 66f;
+            float badgeHeight = 18f;
+            var badgeRect = new Rect(barRect.xMax - badgeWidth - 3f, barRect.y + (EventsBarHeight - badgeHeight) * 0.5f, badgeWidth, badgeHeight);
+
+            var badgeContent = new GUIContent(
+                isEnabled ? "● Active" : "○ Muted",
+                isEnabled
+                    ? "Events: ACTIVE\nClick to mute all mutation events."
+                    : "Events: MUTED\nClick to activate mutation events.");
+
+            var badgeStyle = isEnabled ? InspectorStyles.EventsBadgeActive : InspectorStyles.EventsBadgeMuted;
+
+            if (GUI.Button(badgeRect, badgeContent, badgeStyle))
             {
-                EditorGUI.indentLevel++;
+                eventsProp.boolValue = !isEnabled;
+                if (!isEnabled)
+                {
+                    s_EventsFoldoutStates[path] = true;
+                }
+                property.serializedObject.ApplyModifiedProperties();
+                GUI.FocusControl(null);
+            }
+
+            // 3. Left title button to toggle expand/collapse
+            var foldoutClickRect = new Rect(barRect.x, barRect.y, barRect.width - badgeWidth - 6f, barRect.height);
+            var arrow = isExpanded ? "▼" : "▶";
+            string titleText = isEnabled 
+                ? $"{arrow}  ⚡ Events ({s_DictionaryEvents.Length})" 
+                : $"{arrow}  ⚡ Events";
+
+            var titleContent = new GUIContent(titleText, "Click to expand or collapse event listeners.");
+
+            if (GUI.Button(foldoutClickRect, titleContent, InspectorStyles.EventsBarTitleButton))
+            {
+                s_EventsFoldoutStates[path] = !isExpanded;
+                GUI.FocusControl(null);
+            }
+
+            // 4. If enabled and expanded, draw listeners inside a clean framed container
+            if (isEnabled && isExpanded)
+            {
+                float listenersHeight = GetEventsHeight(property);
+                float boxHeight = listenersHeight + EventsBoxPadding * 2f;
+                var boxRect = new Rect(x, y, width, boxHeight);
+
+                GUI.Box(boxRect, GUIContent.none, InspectorStyles.EventsContainer);
+
+                float innerY = y + EventsBoxPadding;
+                float innerX = x + EventsBoxPadding;
+                float innerW = width - EventsBoxPadding * 2f;
+
                 foreach (var (propName, displayName, tooltip) in s_DictionaryEvents)
                 {
                     var evtProp = property.FindPropertyRelative(propName);
                     if (evtProp != null)
                     {
                         float h = EditorGUI.GetPropertyHeight(evtProp, true);
-                        var evtRect = new Rect(x, y, width, h);
+                        var evtRect = new Rect(innerX, innerY, innerW, h);
                         EditorGUI.PropertyField(evtRect, evtProp, new GUIContent(displayName, tooltip), true);
-                        y += h + 2f;
+                        innerY += h + 4f;
                     }
                 }
-                EditorGUI.indentLevel--;
+
+                y += boxHeight + Padding;
             }
 
             return y;
