@@ -51,9 +51,18 @@ namespace EngineEdge.SmartDictionary.Editor
             if (!IsExpanded(property))
                 return HeaderHeight;
 
-            var rowsH = items.arraySize > 0 
-                ? items.arraySize * RowHeight 
-                : EditorGUIUtility.singleLineHeight + 4f;
+            float rowsH = 0f;
+            if (items.arraySize == 0)
+            {
+                rowsH = EditorGUIUtility.singleLineHeight + 4f;
+            }
+            else
+            {
+                for (int i = 0; i < items.arraySize; i++)
+                {
+                    rowsH += GetItemHeight(items.GetArrayElementAtIndex(i));
+                }
+            }
 
             var totalHeight = HeaderHeight + rowsH + AddBtnHeight + Padding * 2f;
 
@@ -116,9 +125,11 @@ namespace EngineEdge.SmartDictionary.Editor
 
                 for (var i = 0; i < items.arraySize; i++)
                 {
-                    var rowRect = new Rect(contentRect.x, currentY, contentRect.width, RowHeight);
-                    DrawRow(rowRect, items, i, dupSet, ref removeAt);
-                    currentY += RowHeight;
+                    var itemProp = items.GetArrayElementAtIndex(i);
+                    float rowH = GetItemHeight(itemProp);
+                    var rowRect = new Rect(contentRect.x, currentY, contentRect.width, rowH);
+                    DrawRow(rowRect, items, i, dupSet, ref removeAt, rowH);
+                    currentY += rowH;
                 }
 
                 if (removeAt >= 0)
@@ -154,6 +165,12 @@ namespace EngineEdge.SmartDictionary.Editor
         //  Drawing helpers
         // ------------------------------------------------------------------ //
 
+        private static float GetItemHeight(SerializedProperty itemProp)
+        {
+            if (itemProp == null) return EditorGUIUtility.singleLineHeight + 4f;
+            return EditorGUI.GetPropertyHeight(itemProp, true) + 4f;
+        }
+
         private void DrawHeader(Rect rect, SerializedProperty property,
                                 SerializedProperty items, GUIContent label)
         {
@@ -168,7 +185,7 @@ namespace EngineEdge.SmartDictionary.Editor
         }
 
         private void DrawRow(Rect rect, SerializedProperty items, int index,
-                             HashSet<int> dupSet, ref int removeAt)
+                             HashSet<int> dupSet, ref int removeAt, float rowH)
         {
             var bgStyle = (index % 2 == 0) ? InspectorStyles.RowEven : InspectorStyles.RowOdd;
             GUI.Box(rect, GUIContent.none, bgStyle);
@@ -180,12 +197,11 @@ namespace EngineEdge.SmartDictionary.Editor
 
             float x = rect.x + 3f;
             float y = rect.y + 2f;
-            float h = EditorGUIUtility.singleLineHeight;
 
             // Warning icon for duplicates
             if (isDuplicate)
             {
-                var warnRect = new Rect(x, y, 16f, h);
+                var warnRect = new Rect(x, y, 16f, EditorGUIUtility.singleLineHeight);
                 var icon = InspectorStyles.GetWarningIcon();
                 if (icon != null)
                     GUI.DrawTexture(warnRect, icon, ScaleMode.ScaleToFit);
@@ -195,11 +211,15 @@ namespace EngineEdge.SmartDictionary.Editor
             }
 
             // Item field
-            var fieldRect = new Rect(x, y, usable, h);
-            EditorGUI.PropertyField(fieldRect, itemProp, GUIContent.none, true);
+            float itemH = EditorGUI.GetPropertyHeight(itemProp, true);
+            var fieldRect = new Rect(x, y, usable, itemH);
+            var itemLabel = (itemProp.propertyType == SerializedPropertyType.Generic && itemProp.hasVisibleChildren)
+                ? new GUIContent(itemProp.displayName)
+                : GUIContent.none;
+            EditorGUI.PropertyField(fieldRect, itemProp, itemLabel, true);
 
             // Remove button
-            var btnRect = new Rect(rect.xMax - RemoveWidth - 2f, y, RemoveWidth, h);
+            var btnRect = new Rect(rect.xMax - RemoveWidth - 2f, y, RemoveWidth, EditorGUIUtility.singleLineHeight);
             if (GUI.Button(btnRect, "−", InspectorStyles.RemoveButton))
                 removeAt = index;
         }
@@ -321,6 +341,11 @@ namespace EngineEdge.SmartDictionary.Editor
                     }
                     break;
                 }
+                case SerializedPropertyType.ObjectReference:
+                {
+                    itemProp.objectReferenceValue = null;
+                    break;
+                }
             }
         }
 
@@ -343,9 +368,21 @@ namespace EngineEdge.SmartDictionary.Editor
             for (var i = 0; i < items.arraySize; i++)
             {
                 var prop = items.GetArrayElementAtIndex(i);
-                var s = prop.propertyType == SerializedPropertyType.String
-                    ? prop.stringValue
-                    : prop.displayName;
+                if (prop == null) continue;
+
+                string s;
+                if (prop.propertyType == SerializedPropertyType.ObjectReference)
+                {
+                    s = prop.objectReferenceValue != null ? prop.objectReferenceValue.GetInstanceID().ToString() : "null_obj_ref";
+                }
+                else if (prop.propertyType == SerializedPropertyType.String)
+                {
+                    s = prop.stringValue;
+                }
+                else
+                {
+                    s = prop.displayName;
+                }
 
                 if (string.IsNullOrEmpty(s))
                     continue;

@@ -74,7 +74,11 @@ namespace EngineEdge.SmartDictionary.Editor
             {
                 totalHeight += ColumnHeaderH; // Column headers
                 var indices = GetFilteredIndices(pairs, search);
-                totalHeight += indices.Count * RowHeight;
+                for (int i = 0; i < indices.Count; i++)
+                {
+                    var pairProp = pairs.GetArrayElementAtIndex(indices[i]);
+                    totalHeight += GetRowHeight(pairProp);
+                }
             }
 
             totalHeight += AddBtnHeight + Padding * 2f;
@@ -157,9 +161,11 @@ namespace EngineEdge.SmartDictionary.Editor
                 for (var i = 0; i < indices.Count; i++)
                 {
                     var realIdx = indices[i];
-                    var rowRect = new Rect(contentRect.x, currentY, contentRect.width, RowHeight);
-                    DrawRow(rowRect, pairs, realIdx, i, dupSet, ref removeAt);
-                    currentY += RowHeight;
+                    var pairProp = pairs.GetArrayElementAtIndex(realIdx);
+                    float rowH = GetRowHeight(pairProp);
+                    var rowRect = new Rect(contentRect.x, currentY, contentRect.width, rowH);
+                    DrawRow(rowRect, pairs, realIdx, i, dupSet, ref removeAt, rowH);
+                    currentY += rowH;
                 }
 
                 if (removeAt >= 0)
@@ -235,8 +241,21 @@ namespace EngineEdge.SmartDictionary.Editor
             EditorGUI.LabelField(valHeaderRect, "Value", InspectorStyles.ColumnHeader);
         }
 
+        private static float GetRowHeight(SerializedProperty pairProp)
+        {
+            if (pairProp == null) return EditorGUIUtility.singleLineHeight + 4f;
+
+            var keyProp = pairProp.FindPropertyRelative("_key") ?? pairProp.FindPropertyRelative("Key");
+            var valProp = pairProp.FindPropertyRelative("_value") ?? pairProp.FindPropertyRelative("Value");
+
+            float keyH = keyProp != null ? EditorGUI.GetPropertyHeight(keyProp, true) : EditorGUIUtility.singleLineHeight;
+            float valH = valProp != null ? EditorGUI.GetPropertyHeight(valProp, true) : EditorGUIUtility.singleLineHeight;
+
+            return Mathf.Max(keyH, valH) + 4f;
+        }
+
         private void DrawRow(Rect rect, SerializedProperty pairs, int realIndex, int visualIndex,
-                             HashSet<int> dupSet, ref int removeAt)
+                             HashSet<int> dupSet, ref int removeAt, float rowH)
         {
             var bgStyle = (visualIndex % 2 == 0) ? InspectorStyles.RowEven : InspectorStyles.RowOdd;
             GUI.Box(rect, GUIContent.none, bgStyle);
@@ -254,12 +273,11 @@ namespace EngineEdge.SmartDictionary.Editor
 
             float x = rect.x + 3f;
             float y = rect.y + 2f;
-            float h = EditorGUIUtility.singleLineHeight;
 
             // Warning icon for duplicates
             if (isDuplicate)
             {
-                var warnRect = new Rect(x, y, 16f, h);
+                var warnRect = new Rect(x, y, 16f, EditorGUIUtility.singleLineHeight);
                 var icon = InspectorStyles.GetWarningIcon();
                 if (icon != null)
                     GUI.DrawTexture(warnRect, icon, ScaleMode.ScaleToFit);
@@ -271,12 +289,16 @@ namespace EngineEdge.SmartDictionary.Editor
             // Key field
             if (keyProp != null)
             {
-                var keyRect = new Rect(x, y, keyWidth - 4f, h);
-                EditorGUI.PropertyField(keyRect, keyProp, GUIContent.none, true);
+                float keyH = EditorGUI.GetPropertyHeight(keyProp, true);
+                var keyRect = new Rect(x, y, keyWidth - 4f, keyH);
+                var keyLabel = (keyProp.propertyType == SerializedPropertyType.Generic && keyProp.hasVisibleChildren)
+                    ? new GUIContent(keyProp.displayName)
+                    : GUIContent.none;
+                EditorGUI.PropertyField(keyRect, keyProp, keyLabel, true);
             }
             else
             {
-                var errRect = new Rect(x, y, keyWidth - 4f, h);
+                var errRect = new Rect(x, y, keyWidth - 4f, EditorGUIUtility.singleLineHeight);
                 EditorGUI.LabelField(errRect, "(No key)");
             }
             x += keyWidth;
@@ -284,17 +306,21 @@ namespace EngineEdge.SmartDictionary.Editor
             // Value field
             if (valueProp != null)
             {
-                var valRect = new Rect(x, y, valWidth - 4f, h);
-                EditorGUI.PropertyField(valRect, valueProp, GUIContent.none, true);
+                float valH = EditorGUI.GetPropertyHeight(valueProp, true);
+                var valRect = new Rect(x, y, valWidth - 4f, valH);
+                var valLabel = (valueProp.propertyType == SerializedPropertyType.Generic && valueProp.hasVisibleChildren)
+                    ? new GUIContent(valueProp.displayName)
+                    : GUIContent.none;
+                EditorGUI.PropertyField(valRect, valueProp, valLabel, true);
             }
             else
             {
-                var errRect = new Rect(x, y, valWidth - 4f, h);
+                var errRect = new Rect(x, y, valWidth - 4f, EditorGUIUtility.singleLineHeight);
                 EditorGUI.LabelField(errRect, "(No value)");
             }
 
-            // Remove button
-            var btnRect = new Rect(rect.xMax - RemoveWidth - 2f, y, RemoveWidth, h);
+            // Remove button (top aligned)
+            var btnRect = new Rect(rect.xMax - RemoveWidth - 2f, y, RemoveWidth, EditorGUIUtility.singleLineHeight);
             if (GUI.Button(btnRect, "−", InspectorStyles.RemoveButton))
             {
                 removeAt = realIndex;
@@ -427,6 +453,11 @@ namespace EngineEdge.SmartDictionary.Editor
                     }
                     break;
                 }
+                case SerializedPropertyType.ObjectReference:
+                {
+                    keyProp.objectReferenceValue = null;
+                    break;
+                }
             }
         }
 
@@ -481,19 +512,36 @@ namespace EngineEdge.SmartDictionary.Editor
             {
                 var pair = pairs.GetArrayElementAtIndex(i);
                 var keyProp = pair.FindPropertyRelative("_key") ?? pair.FindPropertyRelative("Key");
-                var keyStr = keyProp != null ? SerializedPropertyToString(keyProp) : string.Empty;
+                if (keyProp == null) continue;
 
-                if (string.IsNullOrEmpty(keyStr))
+                string keyIdentifier;
+                if (keyProp.propertyType == SerializedPropertyType.ObjectReference)
+                {
+                    if (keyProp.objectReferenceValue == null)
+                    {
+                        keyIdentifier = "null_obj_ref";
+                    }
+                    else
+                    {
+                        keyIdentifier = keyProp.objectReferenceValue.GetInstanceID().ToString();
+                    }
+                }
+                else
+                {
+                    keyIdentifier = SerializedPropertyToString(keyProp);
+                }
+
+                if (string.IsNullOrEmpty(keyIdentifier))
                     continue;
 
-                if (seen.TryGetValue(keyStr, out var firstIdx))
+                if (seen.TryGetValue(keyIdentifier, out var firstIdx))
                 {
                     dups.Add(firstIdx);
                     dups.Add(i);
                 }
                 else
                 {
-                    seen[keyStr] = i;
+                    seen[keyIdentifier] = i;
                 }
             }
             return dups;
@@ -503,14 +551,15 @@ namespace EngineEdge.SmartDictionary.Editor
         {
             return prop.propertyType switch
             {
-                SerializedPropertyType.String  => prop.stringValue,
-                SerializedPropertyType.Integer => prop.intValue.ToString(),
-                SerializedPropertyType.Float   => prop.floatValue.ToString("G"),
-                SerializedPropertyType.Boolean => prop.boolValue.ToString(),
-                SerializedPropertyType.Enum    => prop.enumDisplayNames.Length > prop.enumValueIndex
-                                                      ? prop.enumDisplayNames[prop.enumValueIndex]
-                                                      : prop.enumValueIndex.ToString(),
-                _                              => prop.type
+                SerializedPropertyType.String          => prop.stringValue,
+                SerializedPropertyType.Integer         => prop.intValue.ToString(),
+                SerializedPropertyType.Float           => prop.floatValue.ToString("G"),
+                SerializedPropertyType.Boolean         => prop.boolValue.ToString(),
+                SerializedPropertyType.ObjectReference => prop.objectReferenceValue != null ? prop.objectReferenceValue.name : string.Empty,
+                SerializedPropertyType.Enum            => prop.enumDisplayNames.Length > prop.enumValueIndex
+                                                              ? prop.enumDisplayNames[prop.enumValueIndex]
+                                                              : prop.enumValueIndex.ToString(),
+                _                                      => prop.type
             };
         }
 
