@@ -344,4 +344,15 @@ namespace EngineEdge.SmartDictionary.Example
             public override string ToString() => $"{_beaconName} ({_requirement})";
         }
     }
+
+    /// <summary>
+    /// A strongly-typed sub-dictionary mapping skill names to level integers.
+    /// Used to demonstrate a Nested Dictionary (Dictionary inside a Dictionary).
+    /// </summary>
+    [Serializable]
+    public class SkillTreeDictionary : SerializableDictionary<string, int>
+    {
+        public SkillTreeDictionary() : base() { }
+        public SkillTreeDictionary(System.Collections.Generic.IDictionary<string, int> dict) : base(dict) { }
+    }
 }

@@ -207,5 +207,33 @@ namespace EngineEdge.SmartDictionary.Tests
             var wrongCoordKey = new TestWaypointNavigation.Key("Dragon Peak", new TestWaypointNavigation.Key.Coordinate(750, 921));
             Assert.IsFalse(dict.ContainsKey(wrongCoordKey));
         }
+
+        // ------------------------------------------------------------------ //
+        //  8. Nested Dictionary (Dictionary within Dictionary)
+        // ------------------------------------------------------------------ //
+
+        [Test]
+        public void Dictionary_NestedDictionaryValue_Works()
+        {
+            var dict = new SerializableDictionary<CharacterProfile, TestSkillTreeDictionary>();
+
+            var hero = new CharacterProfile("Arthur", "Paladin");
+            var innerDict = new TestSkillTreeDictionary
+            {
+                { "Holy Strike", 5 },
+                { "Divine Aura", 3 }
+            };
+
+            dict.Add(hero, innerDict);
+
+            var lookupHero = new CharacterProfile("Arthur", "Paladin");
+            Assert.IsTrue(dict.ContainsKey(lookupHero));
+            Assert.AreEqual(5, dict[lookupHero]["Holy Strike"]);
+            Assert.AreEqual(3, dict[lookupHero]["Divine Aura"]);
+
+            // Direct indexer access to inner dictionary
+            dict[lookupHero]["Holy Strike"] = 6;
+            Assert.AreEqual(6, dict[lookupHero]["Holy Strike"]);
+        }
     }
 }

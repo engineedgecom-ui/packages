@@ -238,4 +238,11 @@ namespace EngineEdge.SmartDictionary.Tests
             }
         }
     }
+
+    [Serializable]
+    public class TestSkillTreeDictionary : SerializableDictionary<string, int>
+    {
+        public TestSkillTreeDictionary() : base() { }
+        public TestSkillTreeDictionary(System.Collections.Generic.IDictionary<string, int> dict) : base(dict) { }
+    }
 }

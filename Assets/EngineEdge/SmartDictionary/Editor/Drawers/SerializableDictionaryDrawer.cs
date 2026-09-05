@@ -623,6 +623,22 @@ namespace EngineEdge.SmartDictionary.Editor
                 return prop.objectReferenceValue != null ? prop.objectReferenceValue.name : "(None)";
             }
 
+            // Check if this property is a nested dictionary
+            var nestedPairs = prop.FindPropertyRelative("_serializedPairs");
+            if (nestedPairs != null)
+            {
+                int count = nestedPairs.arraySize;
+                return $"Dictionary ({count} {(count == 1 ? "entry" : "entries")})";
+            }
+
+            // Check if this property is a nested set/collection
+            var nestedItems = prop.FindPropertyRelative("_serializedItems");
+            if (nestedItems != null)
+            {
+                int count = nestedItems.arraySize;
+                return $"Collection ({count} {(count == 1 ? "item" : "items")})";
+            }
+
             if (prop.propertyType != SerializedPropertyType.Generic || !prop.hasVisibleChildren)
             {
                 return SerializedPropertyToString(prop);
@@ -689,6 +705,16 @@ namespace EngineEdge.SmartDictionary.Editor
                         : prop.enumValueIndex.ToString();
                 case SerializedPropertyType.Generic:
                 {
+                    var nestedPairs = prop.FindPropertyRelative("_serializedPairs");
+                    if (nestedPairs != null)
+                    {
+                        return $"nested_dict_{nestedPairs.arraySize}";
+                    }
+                    var nestedItems = prop.FindPropertyRelative("_serializedItems");
+                    if (nestedItems != null)
+                    {
+                        return $"nested_col_{nestedItems.arraySize}";
+                    }
                     if (!prop.hasVisibleChildren) return prop.type;
                     var sb = new System.Text.StringBuilder();
                     var iterator = prop.Copy();

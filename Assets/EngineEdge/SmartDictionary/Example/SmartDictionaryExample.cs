@@ -54,7 +54,7 @@ namespace EngineEdge.SmartDictionary.Example
         };
 
         [Header("5. Nested Class Key & Value (ObservableDictionary)")]
-        [Tooltip("Demonstrates deeply nested C# classes: Key is WaypointNavigation.Key (contains Coordinate), Value is WaypointNavigation.Value (contains Requirement).")]
+        [Tooltip("Reactive dictionary with nested C# classes: Key is WaypointNavigation.Key (contains Coordinate), Value is WaypointNavigation.Value (contains Requirement).")]
         public ObservableDictionary<WaypointNavigation.Key, WaypointNavigation.Value> fastTravelWaypoints = new ObservableDictionary<WaypointNavigation.Key, WaypointNavigation.Value>
         {
             {
@@ -71,7 +71,45 @@ namespace EngineEdge.SmartDictionary.Example
             }
         };
 
-        [Header("6. Set of Classes (ObservableHashSet)")]
+        [Header("6. Nested Class Key & Value (SerializableDictionary)")]
+        [Tooltip("Pure serializable dictionary version of nested class key and values.")]
+        public SerializableDictionary<WaypointNavigation.Key, WaypointNavigation.Value> waypointRegistry = new SerializableDictionary<WaypointNavigation.Key, WaypointNavigation.Value>
+        {
+            {
+                new WaypointNavigation.Key("Capital City", new WaypointNavigation.Key.Coordinate(0, 0)),
+                new WaypointNavigation.Value("Grand Portal", new WaypointNavigation.Value.Requirement(1, 0))
+            },
+            {
+                new WaypointNavigation.Key("Frozen Wastes", new WaypointNavigation.Key.Coordinate(900, 1400)),
+                new WaypointNavigation.Value("Ice Pillar", new WaypointNavigation.Value.Requirement(70, 1200))
+            }
+        };
+
+        [Header("7. Nested Dictionary (Dictionary of Dictionaries)")]
+        [Tooltip("A dictionary whose Value is another inner Dictionary (CharacterProfile -> SkillTreeDictionary: string -> int).")]
+        public SerializableDictionary<CharacterProfile, SkillTreeDictionary> heroSkillTrees = new SerializableDictionary<CharacterProfile, SkillTreeDictionary>
+        {
+            {
+                new CharacterProfile("Arthur", "Paladin"),
+                new SkillTreeDictionary
+                {
+                    { "Holy Strike", 5 },
+                    { "Divine Aura", 3 },
+                    { "Lay on Hands", 1 }
+                }
+            },
+            {
+                new CharacterProfile("Merlin", "Mage"),
+                new SkillTreeDictionary
+                {
+                    { "Fireball", 10 },
+                    { "Frost Nova", 4 },
+                    { "Teleport", 2 }
+                }
+            }
+        };
+
+        [Header("8. Set of Classes (ObservableHashSet)")]
         [Tooltip("Reactive set containing custom class objects (CharacterProfile) with duplicate rejection and events.")]
         public ObservableHashSet<CharacterProfile> registeredHeroes = new ObservableHashSet<CharacterProfile>
         {
@@ -81,7 +119,7 @@ namespace EngineEdge.SmartDictionary.Example
             new CharacterProfile("Galahad", "Knight")
         };
 
-        [Header("7. Set of Structs (SerializableHashSet)")]
+        [Header("9. Set of Structs (SerializableHashSet)")]
         [Tooltip("Pure serializable set containing custom structs (CombatStats).")]
         public SerializableHashSet<CombatStats> baseStatTemplates = new SerializableHashSet<CombatStats>
         {
@@ -90,11 +128,11 @@ namespace EngineEdge.SmartDictionary.Example
             new CombatStats(1200, 120, 100, 0.20f)
         };
 
-        [Header("8. Stack of Structs (SerializableStack)")]
+        [Header("10. Stack of Structs (SerializableStack)")]
         [Tooltip("LIFO stack containing custom structs (CombatStats snapshots).")]
         public SerializableStack<CombatStats> statHistory = new SerializableStack<CombatStats>();
 
-        [Header("9. Queue of Classes (SerializableQueue)")]
+        [Header("11. Queue of Classes (SerializableQueue)")]
         [Tooltip("FIFO message queue containing custom class instances (CharacterProfile).")]
         public SerializableQueue<CharacterProfile> matchmakingQueue = new SerializableQueue<CharacterProfile>();
 
@@ -490,6 +528,22 @@ namespace EngineEdge.SmartDictionary.Example
                 else
                 {
                     LogAction($"Nested Key '{queryKey}' not found!");
+                }
+            }
+
+            if (GUILayout.Button("Lookup Nested Dict Skills"))
+            {
+                // Tests looking up an inner Dictionary from an outer Dictionary
+                var arthur = new CharacterProfile("Arthur", "Paladin");
+                if (heroSkillTrees.TryGetValue(arthur, out var skills))
+                {
+                    int holyStrike = skills.GetOrDefault("Holy Strike", 0);
+                    int divineAura = skills.GetOrDefault("Divine Aura", 0);
+                    LogAction($"Nested Dict: Arthur's Skills -> Holy Strike Lvl {holyStrike}, Divine Aura Lvl {divineAura}");
+                }
+                else
+                {
+                    LogAction("Arthur's nested skill tree not found!");
                 }
             }
             GUILayout.EndHorizontal();
