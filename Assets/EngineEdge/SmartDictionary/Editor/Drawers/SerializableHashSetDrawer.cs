@@ -15,6 +15,8 @@ namespace EngineEdge.SmartDictionary.Editor
     /// Renders a single-column list with duplicate detection and Undo support.
     /// </summary>
     [CustomPropertyDrawer(typeof(SerializableHashSet<>), true)]
+    [CustomPropertyDrawer(typeof(SerializableStack<>), true)]
+    [CustomPropertyDrawer(typeof(SerializableQueue<>), true)]
     public class SerializableHashSetDrawer : PropertyDrawer
     {
         // ------------------------------------------------------------------ //

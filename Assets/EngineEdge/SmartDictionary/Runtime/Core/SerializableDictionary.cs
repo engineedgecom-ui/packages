@@ -74,6 +74,18 @@ namespace EngineEdge.SmartDictionary
         /// </param>
         public SerializableDictionary(IEqualityComparer<TKey> comparer) : base(comparer) { }
 
+        /// <summary>
+        /// Initializes a new <see cref="SerializableDictionary{TKey,TValue}"/> with elements copied from
+        /// the specified dictionary and using the specified equality comparer.
+        /// </summary>
+        /// <param name="dictionary">The dictionary whose elements are copied.</param>
+        /// <param name="comparer">The equality comparer to use for keys.</param>
+        public SerializableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
+            : base(dictionary, comparer)
+        {
+            _isRuntimeModified = true;
+        }
+
         // ── ISerializationCallbackReceiver ────────────────────────────────────────
 
         /// <summary>

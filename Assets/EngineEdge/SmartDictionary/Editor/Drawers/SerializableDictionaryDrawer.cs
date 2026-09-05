@@ -17,6 +17,8 @@ namespace EngineEdge.SmartDictionary.Editor
     /// and full Undo/Redo support.
     /// </summary>
     [CustomPropertyDrawer(typeof(SerializableDictionary<,>), true)]
+    [CustomPropertyDrawer(typeof(SerializableOrderedDictionary<,>), true)]
+    [CustomPropertyDrawer(typeof(SerializableBiDictionary<,>), true)]
     public class SerializableDictionaryDrawer : PropertyDrawer
     {
         // ------------------------------------------------------------------ //

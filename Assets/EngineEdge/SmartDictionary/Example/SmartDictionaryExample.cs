@@ -6,18 +6,86 @@ namespace EngineEdge.SmartDictionary.Example
 {
     /// <summary>
     /// Comprehensive interactive example script demonstrating Smart Dictionary Pro features:
-    /// Inspector rendering, LINQ queries, event listeners, safe access API, persistence,
+    /// Inspector rendering of primitive, class, and struct types across all 8 collection types,
+    /// LINQ queries, event listeners, safe access API, persistence,
     /// and an on-screen runtime GUI for instant testing in Play Mode.
     /// </summary>
     [AddComponentMenu("EngineEdge/SmartDictionary/Smart Dictionary Example")]
     public class SmartDictionaryExample : MonoBehaviour
     {
         // ------------------------------------------------------------------ //
-        //  Inspector-Visible Collections
+        //  Class Key & Struct Value Collections (Primary Showcase)
         // ------------------------------------------------------------------ //
 
-        [Header("Item Inventory (Observable: string -> int)")]
-        [Tooltip("Reactive dictionary with events. Supports duplicates warning, search filtering, and UnityEvents toolbar in Inspector.")]
+        [Header("1. Class Key -> Struct Value (ObservableDictionary)")]
+        [Tooltip("Key is a custom C# CLASS (CharacterProfile), Value is a custom STRUCT (CombatStats). Includes reactive events and UnityEvents!")]
+        public ObservableDictionary<CharacterProfile, CombatStats> heroStats = new ObservableDictionary<CharacterProfile, CombatStats>
+        {
+            { new CharacterProfile("Arthur", "Paladin"),  new CombatStats(1200, 85, 95, 0.15f) },
+            { new CharacterProfile("Merlin", "Mage"),     new CombatStats(650, 140, 30, 0.35f) },
+            { new CharacterProfile("Robin", "Ranger"),    new CombatStats(800, 110, 50, 0.45f) }
+        };
+
+        [Header("2. Class Key -> Struct Value (SerializableDictionary)")]
+        [Tooltip("Key is a custom CLASS (ItemCategoryKey), Value is a custom STRUCT (ItemModifier) — pure lightweight collection.")]
+        public SerializableDictionary<ItemCategoryKey, ItemModifier> categoryModifiers = new SerializableDictionary<ItemCategoryKey, ItemModifier>
+        {
+            { new ItemCategoryKey("Heavy Armor", 3), new ItemModifier(0f, 0.85f, 500) },
+            { new ItemCategoryKey("Daggers", 2),     new ItemModifier(25f, 1.25f, 150) },
+            { new ItemCategoryKey("Staves", 4),      new ItemModifier(45f, 1.05f, 200) }
+        };
+
+        [Header("3. Class Key -> Class Value (OrderedDictionary)")]
+        [Tooltip("Insertion-order preserved dictionary: Key is class (CharacterProfile), Value is class (SkillData).")]
+        public SerializableOrderedDictionary<CharacterProfile, SkillData> activeSkills = new SerializableOrderedDictionary<CharacterProfile, SkillData>
+        {
+            { new CharacterProfile("Arthur", "Paladin"), new SkillData("Holy Shield", 25, 12f) },
+            { new CharacterProfile("Merlin", "Mage"),    new SkillData("Meteor Strike", 60, 20f) },
+            { new CharacterProfile("Robin", "Ranger"),   new SkillData("Rain of Arrows", 35, 8f) }
+        };
+
+        [Header("4. Struct Key -> String Value (BiDictionary)")]
+        [Tooltip("Two-way lookup dictionary: Key is struct (PlayerBadge), Value is player name string.")]
+        public SerializableBiDictionary<PlayerBadge, string> badgeOwners = new SerializableBiDictionary<PlayerBadge, string>
+        {
+            { new PlayerBadge(101, "Grandmaster"), "Player_Alpha" },
+            { new PlayerBadge(102, "Sharpshooter"), "Player_Bravo" },
+            { new PlayerBadge(103, "Iron Wall"),    "Player_Charlie" }
+        };
+
+        [Header("5. Set of Classes (ObservableHashSet)")]
+        [Tooltip("Reactive set containing custom class objects (CharacterProfile) with duplicate rejection and events.")]
+        public ObservableHashSet<CharacterProfile> registeredHeroes = new ObservableHashSet<CharacterProfile>
+        {
+            new CharacterProfile("Arthur", "Paladin"),
+            new CharacterProfile("Merlin", "Mage"),
+            new CharacterProfile("Robin", "Ranger"),
+            new CharacterProfile("Galahad", "Knight")
+        };
+
+        [Header("6. Set of Structs (SerializableHashSet)")]
+        [Tooltip("Pure serializable set containing custom structs (CombatStats).")]
+        public SerializableHashSet<CombatStats> baseStatTemplates = new SerializableHashSet<CombatStats>
+        {
+            new CombatStats(500, 50, 50, 0.05f),
+            new CombatStats(800, 80, 70, 0.10f),
+            new CombatStats(1200, 120, 100, 0.20f)
+        };
+
+        [Header("7. Stack of Structs (SerializableStack)")]
+        [Tooltip("LIFO stack containing custom structs (CombatStats snapshots).")]
+        public SerializableStack<CombatStats> statHistory = new SerializableStack<CombatStats>();
+
+        [Header("8. Queue of Classes (SerializableQueue)")]
+        [Tooltip("FIFO message queue containing custom class instances (CharacterProfile).")]
+        public SerializableQueue<CharacterProfile> matchmakingQueue = new SerializableQueue<CharacterProfile>();
+
+        // ------------------------------------------------------------------ //
+        //  Standard Collections (Primitives)
+        // ------------------------------------------------------------------ //
+
+        [Header("Standard Inventory (Observable: string -> int)")]
+        [Tooltip("Configure item names and quantities.")]
         public ObservableDictionary<string, int> inventory = new ObservableDictionary<string, int>
         {
             { "Health Potion", 15 },
@@ -46,8 +114,6 @@ namespace EngineEdge.SmartDictionary.Example
             { "Wizards", new Color(0.6f, 0.2f, 0.9f, 1f) }
         };
 
-        [Header("Bonus Collections")]
-        [Tooltip("Bonus collection types included in the package.")]
         public SerializableHashSet<string> unlockedAchievements = new SerializableHashSet<string>
         {
             "First Blood",
@@ -75,6 +141,52 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Reset()
         {
+            heroStats = new ObservableDictionary<CharacterProfile, CombatStats>
+            {
+                { new CharacterProfile("Arthur", "Paladin"),  new CombatStats(1200, 85, 95, 0.15f) },
+                { new CharacterProfile("Merlin", "Mage"),     new CombatStats(650, 140, 30, 0.35f) },
+                { new CharacterProfile("Robin", "Ranger"),    new CombatStats(800, 110, 50, 0.45f) }
+            };
+
+            categoryModifiers = new SerializableDictionary<ItemCategoryKey, ItemModifier>
+            {
+                { new ItemCategoryKey("Heavy Armor", 3), new ItemModifier(0f, 0.85f, 500) },
+                { new ItemCategoryKey("Daggers", 2),     new ItemModifier(25f, 1.25f, 150) },
+                { new ItemCategoryKey("Staves", 4),      new ItemModifier(45f, 1.05f, 200) }
+            };
+
+            activeSkills = new SerializableOrderedDictionary<CharacterProfile, SkillData>
+            {
+                { new CharacterProfile("Arthur", "Paladin"), new SkillData("Holy Shield", 25, 12f) },
+                { new CharacterProfile("Merlin", "Mage"),    new SkillData("Meteor Strike", 60, 20f) },
+                { new CharacterProfile("Robin", "Ranger"),   new SkillData("Rain of Arrows", 35, 8f) }
+            };
+
+            badgeOwners = new SerializableBiDictionary<PlayerBadge, string>
+            {
+                { new PlayerBadge(101, "Grandmaster"), "Player_Alpha" },
+                { new PlayerBadge(102, "Sharpshooter"), "Player_Bravo" },
+                { new PlayerBadge(103, "Iron Wall"),    "Player_Charlie" }
+            };
+
+            registeredHeroes = new ObservableHashSet<CharacterProfile>
+            {
+                new CharacterProfile("Arthur", "Paladin"),
+                new CharacterProfile("Merlin", "Mage"),
+                new CharacterProfile("Robin", "Ranger"),
+                new CharacterProfile("Galahad", "Knight")
+            };
+
+            baseStatTemplates = new SerializableHashSet<CombatStats>
+            {
+                new CombatStats(500, 50, 50, 0.05f),
+                new CombatStats(800, 80, 70, 0.10f),
+                new CombatStats(1200, 120, 100, 0.20f)
+            };
+
+            statHistory = new SerializableStack<CombatStats>();
+            matchmakingQueue = new SerializableQueue<CharacterProfile>();
+
             inventory = new ObservableDictionary<string, int>
             {
                 { "Health Potion", 15 },
@@ -116,39 +228,88 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void OnEnable()
         {
-            // Subscribe to dictionary mutation events
+            // Subscribe to inventory events
             inventory.OnEntryAdded += HandleInventoryAdded;
             inventory.OnEntryRemoved += HandleInventoryRemoved;
             inventory.OnEntryUpdated += HandleInventoryUpdated;
             inventory.OnCleared += HandleInventoryCleared;
             inventory.OnCountChanged += HandleInventoryCountChanged;
+
+            // Subscribe to hero stats events (Class Key -> Struct Value)
+            heroStats.OnEntryAdded += HandleHeroStatsAdded;
+            heroStats.OnEntryUpdated += HandleHeroStatsUpdated;
+            heroStats.OnEntryRemoved += HandleHeroStatsRemoved;
+
+            // Subscribe to registered heroes set events (Class in Set)
+            registeredHeroes.OnItemAdded += HandleHeroRegistered;
+            registeredHeroes.OnItemRemoved += HandleHeroUnregistered;
         }
 
         private void OnDisable()
         {
-            // Always unsubscribe to prevent leaks
             inventory.OnEntryAdded -= HandleInventoryAdded;
             inventory.OnEntryRemoved -= HandleInventoryRemoved;
             inventory.OnEntryUpdated -= HandleInventoryUpdated;
             inventory.OnCleared -= HandleInventoryCleared;
             inventory.OnCountChanged -= HandleInventoryCountChanged;
+
+            heroStats.OnEntryAdded -= HandleHeroStatsAdded;
+            heroStats.OnEntryUpdated -= HandleHeroStatsUpdated;
+            heroStats.OnEntryRemoved -= HandleHeroStatsRemoved;
+
+            registeredHeroes.OnItemAdded -= HandleHeroRegistered;
+            registeredHeroes.OnItemRemoved -= HandleHeroUnregistered;
         }
 
         private void Start()
         {
             LogAction("=== SmartDictionary Example Started ===");
-            LogAction($"Initial inventory items: {inventory.Count}");
+            LogAction($"Loaded {heroStats.Count} Heroes (Class Key -> Struct Value)");
+            LogAction($"Loaded {categoryModifiers.Count} Category Modifiers (Class Key -> Struct Value)");
+            LogAction($"Loaded {registeredHeroes.Count} Registered Heroes in Set");
 
-            // Demonstrate foreach tuple deconstruction
-            foreach (var (itemName, quantity) in inventory)
+            // Populate initial stack & queue for demonstration
+            statHistory.Push(new CombatStats(100, 10, 5, 0.05f));
+            statHistory.Push(new CombatStats(250, 25, 15, 0.10f));
+
+            matchmakingQueue.Enqueue(new CharacterProfile("Lancelot", "Knight"));
+            matchmakingQueue.Enqueue(new CharacterProfile("Morgana", "Witch"));
+
+            // Demonstrate foreach with class key & struct value
+            foreach (var (hero, stats) in heroStats)
             {
-                Debug.Log($"[Inventory] {itemName}: {quantity}");
+                Debug.Log($"[HeroStats] {hero} => {stats}");
             }
         }
 
         // ------------------------------------------------------------------ //
         //  Event Handlers
         // ------------------------------------------------------------------ //
+
+        private void HandleHeroStatsAdded(CharacterProfile hero, CombatStats stats)
+        {
+            LogAction($"[EVENT] Hero Added: {hero} with stats: {stats}");
+        }
+
+        private void HandleHeroStatsUpdated(CharacterProfile hero, CombatStats oldStats, CombatStats newStats)
+        {
+            LogAction($"[EVENT] Hero Updated: {hero} ATK changed from {oldStats.attackPower} -> {newStats.attackPower}");
+        }
+
+        private void HandleHeroStatsRemoved(CharacterProfile hero, CombatStats stats)
+        {
+            LogAction($"[EVENT] Hero Removed: {hero} (had stats: {stats})");
+        }
+
+        private void HandleHeroRegistered(CharacterProfile hero)
+        {
+            LogAction($"[EVENT] Hero Registered in Set: {hero}");
+        }
+
+        private void HandleHeroUnregistered(CharacterProfile hero)
+        {
+            LogAction($"[EVENT] Hero Unregistered from Set: {hero}");
+        }
 
         private void HandleInventoryAdded(string key, int value)
         {
@@ -172,7 +333,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void HandleInventoryCountChanged(int count)
         {
-            LogAction($"[EVENT] Total unique items count is now: {count}");
+            LogAction($"[EVENT] Total unique items count: {count}");
         }
 
         // ------------------------------------------------------------------ //
@@ -195,93 +356,115 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(15, 15, 380, Screen.height - 30), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(15, 15, 420, Screen.height - 30), GUI.skin.box);
 
             GUILayout.Label("<b><size=14>Smart Dictionary Pro — Live Demo</size></b>", GUI.skin.label);
-            GUILayout.Label("Click buttons below to test runtime API & events:\n", GUI.skin.label);
+            GUILayout.Label("Demonstrating Class Keys, Struct Values, and All Collections:\n", GUI.skin.label);
 
-            // 1. Safe Add / Modify
+            // 1. Class Key -> Struct Value Actions
+            GUILayout.Label("<b>Class Key -> Struct Value Actions:</b>");
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add Gold (+50)"))
+            if (GUILayout.Button("Add New Hero (Class Key)"))
             {
-                int currentGold = inventory.GetOrDefault("Gold Coins", 0);
-                inventory.AddOrUpdate("Gold Coins", currentGold + 50);
+                string[] heroNames = { "Percival", "Kay", "Tristan", "Galahad", "Bors" };
+                string[] heroClasses = { "Knight", "Ranger", "Berserker", "Cleric" };
+                string name = heroNames[Random.Range(0, heroNames.Length)] + " " + Random.Range(10, 99);
+                string cls = heroClasses[Random.Range(0, heroClasses.Length)];
+
+                var hero = new CharacterProfile(name, cls);
+                var stats = new CombatStats(Random.Range(500, 1500), Random.Range(40, 120), Random.Range(20, 80), Random.Range(0.05f, 0.40f));
+                heroStats.TryAdd(hero, stats);
             }
 
-            if (GUILayout.Button("Add New Potion"))
+            if (GUILayout.Button("Buff Arthur (+25 ATK)"))
             {
-                string potionName = "Elixir of Speed " + Random.Range(1, 99);
-                inventory.TryAdd(potionName, Random.Range(1, 5));
-            }
-            GUILayout.EndHorizontal();
-
-            // 2. Safe Remove
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Consume Health Potion"))
-            {
-                if (inventory.TryGetValue("Health Potion", out int count))
+                var arthurKey = new CharacterProfile("Arthur", "Paladin");
+                if (heroStats.TryGetValue(arthurKey, out var currentStats))
                 {
-                    if (count > 1)
-                        inventory["Health Potion"] = count - 1;
-                    else
-                        inventory.Remove("Health Potion");
+                    currentStats.attackPower += 25;
+                    heroStats[arthurKey] = currentStats; // triggers OnEntryUpdated event
                 }
                 else
                 {
-                    LogAction("No Health Potions left in inventory!");
+                    LogAction("Arthur not found in heroStats!");
                 }
-            }
-
-            if (GUILayout.Button("Clear All Items"))
-            {
-                inventory.Clear();
             }
             GUILayout.EndHorizontal();
 
-            // 3. LINQ queries
+            // 2. Bonus Collections (Stack, Queue, BiDictionary)
             GUILayout.Space(6);
-            GUILayout.Label("<b>LINQ Queries:</b>");
+            GUILayout.Label("<b>Bonus Collections (Stack, Queue, BiDict):</b>");
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Filter (Qty >= 5)"))
+            if (GUILayout.Button("Push Stat to Stack"))
             {
-                var highQty = inventory.WhereDict((k, v) => v >= 5);
-                LogAction($"--- LINQ: Found {highQty.Count} items with qty >= 5 ---");
-                foreach (var (k, v) in highQty)
+                var snapshot = new CombatStats(Random.Range(500, 2000), Random.Range(50, 150), Random.Range(30, 90), 0.25f);
+                statHistory.Push(snapshot);
+                LogAction($"Pushed to Stack. Total: {statHistory.Count}. Top: {snapshot}");
+            }
+
+            if (GUILayout.Button("Pop Stat from Stack"))
+            {
+                if (statHistory.TryPop(out var popped))
                 {
-                    LogAction($"  {k}: {v}");
+                    LogAction($"Popped from Stack: {popped}. Left: {statHistory.Count}");
+                }
+                else
+                {
+                    LogAction("Stack is empty!");
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Enqueue Hero to Queue"))
+            {
+                var newHero = new CharacterProfile("Recruit " + Random.Range(1, 99), "Novice");
+                matchmakingQueue.Enqueue(newHero);
+                LogAction($"Enqueued {newHero}. Queue length: {matchmakingQueue.Count}");
+            }
+
+            if (GUILayout.Button("Dequeue Matchmaking"))
+            {
+                if (matchmakingQueue.TryDequeue(out var dequeued))
+                {
+                    LogAction($"Dequeued from Queue: {dequeued}. Left: {matchmakingQueue.Count}");
+                }
+                else
+                {
+                    LogAction("Matchmaking queue is empty!");
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            // 3. BiDictionary & LINQ
+            GUILayout.Space(6);
+            GUILayout.Label("<b>BiDictionary & LINQ Queries:</b>");
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Lookup BiDict Owner"))
+            {
+                var badge = new PlayerBadge(101, "Grandmaster");
+                if (badgeOwners.TryGetByKey(badge, out var owner))
+                {
+                    LogAction($"BiDict: Badge '{badge.title}' belongs to '{owner}'");
+                }
+                if (badgeOwners.TryGetByValue("Player_Alpha", out var pBadge))
+                {
+                    LogAction($"BiDict Reverse: 'Player_Alpha' owns badge '{pBadge}'");
                 }
             }
 
-            if (GUILayout.Button("Sum Total Items"))
+            if (GUILayout.Button("Sum Inventory"))
             {
                 int totalQuantity = inventory.SumValues();
-                int maxStack = inventory.Count > 0 ? inventory.MaxValue() : 0;
-                LogAction($"--- LINQ: Total items count: {totalQuantity} | Max stack: {maxStack} ---");
+                LogAction($"--- LINQ: Total inventory quantity: {totalQuantity} items ---");
             }
             GUILayout.EndHorizontal();
 
-            // 4. Persistence
-            GUILayout.Space(6);
-            GUILayout.Label("<b>Serialization & Persistence:</b>");
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Save to PlayerPrefs"))
-            {
-                inventory.ToPlayerPrefs("DemoInventory");
-                LogAction("Saved inventory to PlayerPrefs ('DemoInventory')");
-            }
-
-            if (GUILayout.Button("Load from PlayerPrefs"))
-            {
-                inventory.FromPlayerPrefs("DemoInventory");
-                LogAction("Loaded inventory from PlayerPrefs ('DemoInventory')");
-            }
-            GUILayout.EndHorizontal();
-
-            // 5. Live Event Console
+            // 4. Live Event Console
             GUILayout.Space(10);
             GUILayout.Label("<b>Live Event & Action Log:</b>");
 
-            _logScrollPosition = GUILayout.BeginScrollView(_logScrollPosition, GUILayout.Height(220));
+            _logScrollPosition = GUILayout.BeginScrollView(_logScrollPosition, GUILayout.Height(200));
             for (int i = _actionLogs.Count - 1; i >= 0; i--)
             {
                 GUILayout.Label(_actionLogs[i]);
