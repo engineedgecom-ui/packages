@@ -109,7 +109,51 @@ namespace EngineEdge.SmartDictionary.Example
             }
         };
 
-        [Header("8. Set of Classes (ObservableHashSet)")]
+        [Header("8. 6-Layer Deep Nested Key (SerializableDictionary)")]
+        [Tooltip("Demonstrates a Key with 6 full levels of nested classes: GalacticRouteKey -> QuadrantData -> StarSystemData -> PlanetOrbitData -> SurfaceSectorData -> SubGridCoordinate.")]
+        public SerializableDictionary<GalacticRouteKey, SpaceStationInfo> galacticStations = new SerializableDictionary<GalacticRouteKey, SpaceStationInfo>
+        {
+            {
+                new GalacticRouteKey(
+                    "MilkyWay",
+                    new QuadrantData(
+                        "Alpha-7",
+                        new StarSystemData(
+                            104,
+                            new PlanetOrbitData(
+                                "Sol-3",
+                                new SurfaceSectorData(
+                                    "Sector-A",
+                                    new SubGridCoordinate(42, 88)
+                                )
+                            )
+                        )
+                    )
+                ),
+                new SpaceStationInfo("Earth Orbital Defense", 9500, false)
+            },
+            {
+                new GalacticRouteKey(
+                    "Andromeda",
+                    new QuadrantData(
+                        "Omega-9",
+                        new StarSystemData(
+                            880,
+                            new PlanetOrbitData(
+                                "Xylar-Prime",
+                                new SurfaceSectorData(
+                                    "Sector-D",
+                                    new SubGridCoordinate(999, 120)
+                                )
+                            )
+                        )
+                    )
+                ),
+                new SpaceStationInfo("Pirate Dreadnought Outpost", 14200, true)
+            }
+        };
+
+        [Header("9. Set of Classes (ObservableHashSet)")]
         [Tooltip("Reactive set containing custom class objects (CharacterProfile) with duplicate rejection and events.")]
         public ObservableHashSet<CharacterProfile> registeredHeroes = new ObservableHashSet<CharacterProfile>
         {
@@ -119,7 +163,7 @@ namespace EngineEdge.SmartDictionary.Example
             new CharacterProfile("Galahad", "Knight")
         };
 
-        [Header("9. Set of Structs (SerializableHashSet)")]
+        [Header("10. Set of Structs (SerializableHashSet)")]
         [Tooltip("Pure serializable set containing custom structs (CombatStats).")]
         public SerializableHashSet<CombatStats> baseStatTemplates = new SerializableHashSet<CombatStats>
         {
@@ -128,11 +172,11 @@ namespace EngineEdge.SmartDictionary.Example
             new CombatStats(1200, 120, 100, 0.20f)
         };
 
-        [Header("10. Stack of Structs (SerializableStack)")]
+        [Header("11. Stack of Structs (SerializableStack)")]
         [Tooltip("LIFO stack containing custom structs (CombatStats snapshots).")]
         public SerializableStack<CombatStats> statHistory = new SerializableStack<CombatStats>();
 
-        [Header("11. Queue of Classes (SerializableQueue)")]
+        [Header("12. Queue of Classes (SerializableQueue)")]
         [Tooltip("FIFO message queue containing custom class instances (CharacterProfile).")]
         public SerializableQueue<CharacterProfile> matchmakingQueue = new SerializableQueue<CharacterProfile>();
 
@@ -544,6 +588,38 @@ namespace EngineEdge.SmartDictionary.Example
                 else
                 {
                     LogAction("Arthur's nested skill tree not found!");
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Lookup 6-Layer Deep Key"))
+            {
+                // Tests 6-layer deep value equality lookup with a brand new instance
+                var deepKey = new GalacticRouteKey(
+                    "MilkyWay",
+                    new QuadrantData(
+                        "Alpha-7",
+                        new StarSystemData(
+                            104,
+                            new PlanetOrbitData(
+                                "Sol-3",
+                                new SurfaceSectorData(
+                                    "Sector-A",
+                                    new SubGridCoordinate(42, 88)
+                                )
+                            )
+                        )
+                    )
+                );
+
+                if (galacticStations.TryGetValue(deepKey, out var station))
+                {
+                    LogAction($"6-Layer Key Match: Found station '{station.StationName}' (DEF: {station.DefenseRating})!");
+                }
+                else
+                {
+                    LogAction("6-layer key not found!");
                 }
             }
             GUILayout.EndHorizontal();

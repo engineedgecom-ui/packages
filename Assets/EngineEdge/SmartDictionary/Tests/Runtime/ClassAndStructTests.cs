@@ -235,5 +235,76 @@ namespace EngineEdge.SmartDictionary.Tests
             dict[lookupHero]["Holy Strike"] = 6;
             Assert.AreEqual(6, dict[lookupHero]["Holy Strike"]);
         }
+
+        // ------------------------------------------------------------------ //
+        //  9. 6-Layer Deep Nested Key
+        // ------------------------------------------------------------------ //
+
+        [Test]
+        public void Dictionary_SixLayerNestedKey_ValueEqualityWorks()
+        {
+            var dict = new SerializableDictionary<TestGalacticRouteKey, string>();
+
+            // Construct a 6-layer deep key
+            var key1 = new TestGalacticRouteKey(
+                "MilkyWay",
+                new TestQuadrant(
+                    "Alpha",
+                    new TestStarSystem(
+                        101,
+                        new TestPlanetOrbit(
+                            "Earth",
+                            new TestSurfaceSector(
+                                "Sector-1",
+                                new TestSubGrid(50, 100)
+                            )
+                        )
+                    )
+                )
+            );
+
+            dict.Add(key1, "Alpha Base Station");
+
+            // Look up using a completely distinct new instance with matching values at all 6 levels
+            var lookupMatch = new TestGalacticRouteKey(
+                "MilkyWay",
+                new TestQuadrant(
+                    "Alpha",
+                    new TestStarSystem(
+                        101,
+                        new TestPlanetOrbit(
+                            "Earth",
+                            new TestSurfaceSector(
+                                "Sector-1",
+                                new TestSubGrid(50, 100)
+                            )
+                        )
+                    )
+                )
+            );
+
+            Assert.IsTrue(dict.ContainsKey(lookupMatch));
+            Assert.AreEqual("Alpha Base Station", dict[lookupMatch]);
+
+            // Look up with level 6 modified (50, 101 instead of 50, 100) -> MUST FAIL
+            var lookupMismatch = new TestGalacticRouteKey(
+                "MilkyWay",
+                new TestQuadrant(
+                    "Alpha",
+                    new TestStarSystem(
+                        101,
+                        new TestPlanetOrbit(
+                            "Earth",
+                            new TestSurfaceSector(
+                                "Sector-1",
+                                new TestSubGrid(50, 101)
+                            )
+                        )
+                    )
+                )
+            );
+
+            Assert.IsFalse(dict.ContainsKey(lookupMismatch));
+        }
     }
 }

@@ -355,4 +355,220 @@ namespace EngineEdge.SmartDictionary.Example
         public SkillTreeDictionary() : base() { }
         public SkillTreeDictionary(System.Collections.Generic.IDictionary<string, int> dict) : base(dict) { }
     }
+
+    // =========================================================================
+    //  DEEP 6-LAYER NESTED CLASS HIERARCHY (Galactic Route Key)
+    // =========================================================================
+
+    /// <summary>
+    /// Layer 1 (Root Key): Galactic Route Key.
+    /// Contains Layer 2 (<see cref="QuadrantData"/>).
+    /// </summary>
+    [Serializable]
+    public class GalacticRouteKey : IEquatable<GalacticRouteKey>
+    {
+        [SerializeField] private string _galaxyName;
+        [SerializeField] private QuadrantData _quadrant = new QuadrantData();
+
+        public string GalaxyName => _galaxyName;
+        public QuadrantData Quadrant => _quadrant;
+
+        public GalacticRouteKey() { }
+        public GalacticRouteKey(string galaxy, QuadrantData quadrant)
+        {
+            _galaxyName = galaxy;
+            _quadrant = quadrant ?? new QuadrantData();
+        }
+
+        public bool Equals(GalacticRouteKey other) =>
+            other != null &&
+            string.Equals(_galaxyName, other._galaxyName, StringComparison.OrdinalIgnoreCase) &&
+            Equals(_quadrant, other._quadrant);
+
+        public override bool Equals(object obj) => obj is GalacticRouteKey other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(
+            _galaxyName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(_galaxyName) : 0,
+            _quadrant != null ? _quadrant.GetHashCode() : 0
+        );
+        public override string ToString() => $"{_galaxyName} -> {_quadrant}";
+    }
+
+    /// <summary>
+    /// Layer 2: Quadrant Sector within the galaxy.
+    /// Contains Layer 3 (<see cref="StarSystemData"/>).
+    /// </summary>
+    [Serializable]
+    public class QuadrantData : IEquatable<QuadrantData>
+    {
+        [SerializeField] private string _quadrantCode;
+        [SerializeField] private StarSystemData _starSystem = new StarSystemData();
+
+        public string QuadrantCode => _quadrantCode;
+        public StarSystemData StarSystem => _starSystem;
+
+        public QuadrantData() { }
+        public QuadrantData(string quadrantCode, StarSystemData starSystem)
+        {
+            _quadrantCode = quadrantCode;
+            _starSystem = starSystem ?? new StarSystemData();
+        }
+
+        public bool Equals(QuadrantData other) =>
+            other != null &&
+            string.Equals(_quadrantCode, other._quadrantCode, StringComparison.OrdinalIgnoreCase) &&
+            Equals(_starSystem, other._starSystem);
+
+        public override bool Equals(object obj) => obj is QuadrantData other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(
+            _quadrantCode != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(_quadrantCode) : 0,
+            _starSystem != null ? _starSystem.GetHashCode() : 0
+        );
+        public override string ToString() => $"Q[{_quadrantCode}] -> {_starSystem}";
+    }
+
+    /// <summary>
+    /// Layer 3: Star System within the quadrant.
+    /// Contains Layer 4 (<see cref="PlanetOrbitData"/>).
+    /// </summary>
+    [Serializable]
+    public class StarSystemData : IEquatable<StarSystemData>
+    {
+        [SerializeField] private int _systemCode;
+        [SerializeField] private PlanetOrbitData _planet = new PlanetOrbitData();
+
+        public int SystemCode => _systemCode;
+        public PlanetOrbitData Planet => _planet;
+
+        public StarSystemData() { }
+        public StarSystemData(int systemCode, PlanetOrbitData planet)
+        {
+            _systemCode = systemCode;
+            _planet = planet ?? new PlanetOrbitData();
+        }
+
+        public bool Equals(StarSystemData other) =>
+            other != null && _systemCode == other._systemCode && Equals(_planet, other._planet);
+
+        public override bool Equals(object obj) => obj is StarSystemData other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(_systemCode, _planet != null ? _planet.GetHashCode() : 0);
+        public override string ToString() => $"Sys#{_systemCode} -> {_planet}";
+    }
+
+    /// <summary>
+    /// Layer 4: Planet and Orbit position.
+    /// Contains Layer 5 (<see cref="SurfaceSectorData"/>).
+    /// </summary>
+    [Serializable]
+    public class PlanetOrbitData : IEquatable<PlanetOrbitData>
+    {
+        [SerializeField] private string _planetName;
+        [SerializeField] private SurfaceSectorData _sector = new SurfaceSectorData();
+
+        public string PlanetName => _planetName;
+        public SurfaceSectorData Sector => _sector;
+
+        public PlanetOrbitData() { }
+        public PlanetOrbitData(string planetName, SurfaceSectorData sector)
+        {
+            _planetName = planetName;
+            _sector = sector ?? new SurfaceSectorData();
+        }
+
+        public bool Equals(PlanetOrbitData other) =>
+            other != null &&
+            string.Equals(_planetName, other._planetName, StringComparison.OrdinalIgnoreCase) &&
+            Equals(_sector, other._sector);
+
+        public override bool Equals(object obj) => obj is PlanetOrbitData other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(
+            _planetName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(_planetName) : 0,
+            _sector != null ? _sector.GetHashCode() : 0
+        );
+        public override string ToString() => $"{_planetName} -> {_sector}";
+    }
+
+    /// <summary>
+    /// Layer 5: Surface Sector on the planet.
+    /// Contains Layer 6 (<see cref="SubGridCoordinate"/>).
+    /// </summary>
+    [Serializable]
+    public class SurfaceSectorData : IEquatable<SurfaceSectorData>
+    {
+        [SerializeField] private string _sectorCode;
+        [SerializeField] private SubGridCoordinate _coordinate = new SubGridCoordinate();
+
+        public string SectorCode => _sectorCode;
+        public SubGridCoordinate Coordinate => _coordinate;
+
+        public SurfaceSectorData() { }
+        public SurfaceSectorData(string sectorCode, SubGridCoordinate coordinate)
+        {
+            _sectorCode = sectorCode;
+            _coordinate = coordinate ?? new SubGridCoordinate();
+        }
+
+        public bool Equals(SurfaceSectorData other) =>
+            other != null &&
+            string.Equals(_sectorCode, other._sectorCode, StringComparison.OrdinalIgnoreCase) &&
+            Equals(_coordinate, other._coordinate);
+
+        public override bool Equals(object obj) => obj is SurfaceSectorData other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(
+            _sectorCode != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(_sectorCode) : 0,
+            _coordinate != null ? _coordinate.GetHashCode() : 0
+        );
+        public override string ToString() => $"{_sectorCode} {_coordinate}";
+    }
+
+    /// <summary>
+    /// Layer 6: Deepest 2D Sub-Grid Coordinate.
+    /// </summary>
+    [Serializable]
+    public class SubGridCoordinate : IEquatable<SubGridCoordinate>
+    {
+        [SerializeField] private int _x;
+        [SerializeField] private int _y;
+
+        public int X => _x;
+        public int Y => _y;
+
+        public SubGridCoordinate() { }
+        public SubGridCoordinate(int x, int y)
+        {
+            _x = x;
+            _y = y;
+        }
+
+        public bool Equals(SubGridCoordinate other) =>
+            other != null && _x == other._x && _y == other._y;
+
+        public override bool Equals(object obj) => obj is SubGridCoordinate other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(_x, _y);
+        public override string ToString() => $"({_x}, {_y})";
+    }
+
+    /// <summary>
+    /// Value type paired with the 6-layer deep key.
+    /// </summary>
+    [Serializable]
+    public class SpaceStationInfo
+    {
+        [SerializeField] private string _stationName;
+        [SerializeField] private int _defenseRating;
+        [SerializeField] private bool _isHostile;
+
+        public string StationName => _stationName;
+        public int DefenseRating => _defenseRating;
+        public bool IsHostile => _isHostile;
+
+        public SpaceStationInfo() { }
+        public SpaceStationInfo(string name, int defense, bool hostile = false)
+        {
+            _stationName = name;
+            _defenseRating = defense;
+            _isHostile = hostile;
+        }
+
+        public override string ToString() => $"{_stationName} (DEF:{_defenseRating}, Hostile:{_isHostile})";
+    }
 }

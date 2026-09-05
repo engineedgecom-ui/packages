@@ -245,4 +245,94 @@ namespace EngineEdge.SmartDictionary.Tests
         public TestSkillTreeDictionary() : base() { }
         public TestSkillTreeDictionary(System.Collections.Generic.IDictionary<string, int> dict) : base(dict) { }
     }
+
+    // --- 6-Layer Deep Nested Key for Tests ---
+
+    [Serializable]
+    public class TestGalacticRouteKey : IEquatable<TestGalacticRouteKey>
+    {
+        public string galaxy;
+        public TestQuadrant quadrant;
+
+        public TestGalacticRouteKey() { }
+        public TestGalacticRouteKey(string galaxy, TestQuadrant quadrant) { this.galaxy = galaxy; this.quadrant = quadrant; }
+
+        public bool Equals(TestGalacticRouteKey other) =>
+            other != null && string.Equals(galaxy, other.galaxy, StringComparison.OrdinalIgnoreCase) && Equals(quadrant, other.quadrant);
+        public override bool Equals(object obj) => obj is TestGalacticRouteKey other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(galaxy != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(galaxy) : 0, quadrant != null ? quadrant.GetHashCode() : 0);
+    }
+
+    [Serializable]
+    public class TestQuadrant : IEquatable<TestQuadrant>
+    {
+        public string quadrantCode;
+        public TestStarSystem starSystem;
+
+        public TestQuadrant() { }
+        public TestQuadrant(string code, TestStarSystem sys) { quadrantCode = code; starSystem = sys; }
+
+        public bool Equals(TestQuadrant other) =>
+            other != null && string.Equals(quadrantCode, other.quadrantCode, StringComparison.OrdinalIgnoreCase) && Equals(starSystem, other.starSystem);
+        public override bool Equals(object obj) => obj is TestQuadrant other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(quadrantCode != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(quadrantCode) : 0, starSystem != null ? starSystem.GetHashCode() : 0);
+    }
+
+    [Serializable]
+    public class TestStarSystem : IEquatable<TestStarSystem>
+    {
+        public int systemCode;
+        public TestPlanetOrbit planet;
+
+        public TestStarSystem() { }
+        public TestStarSystem(int code, TestPlanetOrbit p) { systemCode = code; planet = p; }
+
+        public bool Equals(TestStarSystem other) => other != null && systemCode == other.systemCode && Equals(planet, other.planet);
+        public override bool Equals(object obj) => obj is TestStarSystem other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(systemCode, planet != null ? planet.GetHashCode() : 0);
+    }
+
+    [Serializable]
+    public class TestPlanetOrbit : IEquatable<TestPlanetOrbit>
+    {
+        public string planetName;
+        public TestSurfaceSector sector;
+
+        public TestPlanetOrbit() { }
+        public TestPlanetOrbit(string name, TestSurfaceSector s) { planetName = name; sector = s; }
+
+        public bool Equals(TestPlanetOrbit other) =>
+            other != null && string.Equals(planetName, other.planetName, StringComparison.OrdinalIgnoreCase) && Equals(sector, other.sector);
+        public override bool Equals(object obj) => obj is TestPlanetOrbit other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(planetName != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(planetName) : 0, sector != null ? sector.GetHashCode() : 0);
+    }
+
+    [Serializable]
+    public class TestSurfaceSector : IEquatable<TestSurfaceSector>
+    {
+        public string sectorCode;
+        public TestSubGrid coord;
+
+        public TestSurfaceSector() { }
+        public TestSurfaceSector(string code, TestSubGrid c) { sectorCode = code; coord = c; }
+
+        public bool Equals(TestSurfaceSector other) =>
+            other != null && string.Equals(sectorCode, other.sectorCode, StringComparison.OrdinalIgnoreCase) && Equals(coord, other.coord);
+        public override bool Equals(object obj) => obj is TestSurfaceSector other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(sectorCode != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(sectorCode) : 0, coord != null ? coord.GetHashCode() : 0);
+    }
+
+    [Serializable]
+    public class TestSubGrid : IEquatable<TestSubGrid>
+    {
+        public int x;
+        public int y;
+
+        public TestSubGrid() { }
+        public TestSubGrid(int x, int y) { this.x = x; this.y = y; }
+
+        public bool Equals(TestSubGrid other) => other != null && x == other.x && y == other.y;
+        public override bool Equals(object obj) => obj is TestSubGrid other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(x, y);
+    }
 }
