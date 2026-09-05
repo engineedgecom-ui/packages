@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -94,7 +94,10 @@ namespace EngineEdge.SmartDictionary
                 return;
             }
 
-            target.EventsEnabled = false;
+            var obs = target as ObservableDictionary<TKey, TValue>;
+            bool prevEvents = obs?.EventsEnabled ?? true;
+            if (obs != null) obs.EventsEnabled = false;
+
             target.Clear();
             foreach (var pair in wrapper.pairs)
             {
@@ -105,7 +108,8 @@ namespace EngineEdge.SmartDictionary
                 }
                 target.TryAdd(pair.Key, pair.Value);
             }
-            target.EventsEnabled = true;
+
+            if (obs != null) obs.EventsEnabled = prevEvents;
         }
 
         // ── File I/O ──────────────────────────────────────────────────────────
