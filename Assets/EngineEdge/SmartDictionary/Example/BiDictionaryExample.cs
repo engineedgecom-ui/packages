@@ -42,11 +42,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Awake()
         {
-            Debug.Log(JsonUtility.ToJson(new BiDictJsonContainer
-            {
-                playerIds = this.playerIds,
-                badgeOwners = this.badgeOwners
-            }, true));
+            Debug.Log(badgeOwners.ToStandardJson(prettyPrint: true));
         }
 
         private void Log(string message)

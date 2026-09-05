@@ -73,7 +73,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Awake()
         {
-            Debug.Log(JsonUtility.ToJson(new DictionaryJsonContainer { inventory = this.inventory, heroStats = this.heroStats }, true));
+            Debug.Log(heroStats.ToStandardJson(prettyPrint: true));
         }
 
         private void Start()

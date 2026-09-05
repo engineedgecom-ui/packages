@@ -114,12 +114,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Awake()
         {
-            Debug.Log(JsonUtility.ToJson(new NestedJsonContainer
-            {
-                waypoints = this.fastTravelWaypoints,
-                heroSkillTrees = this.heroSkillTrees,
-                galacticStations = this.galacticStations
-            }, true));
+            Debug.Log(heroSkillTrees.ToStandardJson(prettyPrint: true));
         }
 
         private void Log(string message)

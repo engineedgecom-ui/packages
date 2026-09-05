@@ -41,11 +41,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Awake()
         {
-            Debug.Log(JsonUtility.ToJson(new OrderedJsonContainer
-            {
-                leaderboard = this.leaderboard,
-                activeSkills = this.activeSkills
-            }, true));
+            Debug.Log(activeSkills.ToStandardJson(prettyPrint: true));
         }
 
         private void Log(string message)

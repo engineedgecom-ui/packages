@@ -61,12 +61,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Awake()
         {
-            Debug.Log(JsonUtility.ToJson(new HashSetJsonContainer
-            {
-                achievements = this.unlockedAchievements,
-                baseStats = this.baseStatTemplates,
-                roster = this.registeredHeroes
-            }, true));
+            Debug.Log(registeredHeroes.ToStandardJson(prettyPrint: true));
         }
 
         private void Start()

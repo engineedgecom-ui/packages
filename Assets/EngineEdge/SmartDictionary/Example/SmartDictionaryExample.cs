@@ -458,18 +458,7 @@ namespace EngineEdge.SmartDictionary.Example
                 matchmakingQueue.Enqueue(new CharacterProfile("Morgana", "Witch"));
             }
 
-            Debug.Log(JsonUtility.ToJson(new SmartDictionarySaveData
-            {
-                heroStats = this.heroStats,
-                categoryModifiers = this.categoryModifiers,
-                activeSkills = this.activeSkills,
-                badgeOwners = this.badgeOwners,
-                fastTravelWaypoints = this.fastTravelWaypoints,
-                heroSkillTrees = this.heroSkillTrees,
-                registeredHeroes = this.registeredHeroes,
-                baseStatTemplates = this.baseStatTemplates,
-                inventory = this.inventory
-            }, true));
+            Debug.Log(heroStats.ToStandardJson(prettyPrint: true));
         }
 
         private void Start()

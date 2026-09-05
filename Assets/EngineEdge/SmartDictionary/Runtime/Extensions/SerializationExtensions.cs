@@ -233,5 +233,218 @@ namespace EngineEdge.SmartDictionary
             var json = PlayerPrefs.GetString(prefsKey);
             target.FromJson(json);
         }
+
+        // ── Standard Cross-Language JSON Serialization (Data Only) ────────────
+
+        /// <summary>
+        /// Serializes any Smart Dictionary or key-value collection into standard, cross-language
+        /// JSON Object format (<c>{"Key": Value}</c>) containing pure data only (no Unity internal fields or events).
+        /// </summary>
+        /// <typeparam name="TKey">Key type.</typeparam>
+        /// <typeparam name="TValue">Value type.</typeparam>
+        /// <param name="source">Dictionary to serialize.</param>
+        /// <param name="prettyPrint">Whether to format with indentation.</param>
+        /// <returns>Standard JSON Object string.</returns>
+        public static string ToStandardJson<TKey, TValue>(
+            this IEnumerable<KeyValuePair<TKey, TValue>> source,
+            bool prettyPrint = true)
+        {
+            if (source == null) return "null";
+
+            var sb = new System.Text.StringBuilder();
+            sb.Append(prettyPrint ? "{\n" : "{");
+
+            bool first = true;
+            foreach (var kvp in source)
+            {
+                if (!first)
+                {
+                    sb.Append(prettyPrint ? ",\n" : ",");
+                }
+                first = false;
+
+                string keyStr = FormatJsonKey(kvp.Key);
+                string valStr = SerializeValue(kvp.Value, indentLevel: 1, prettyPrint: prettyPrint);
+
+                if (prettyPrint)
+                {
+                    sb.Append("  \"").Append(EscapeJsonString(keyStr)).Append("\": ").Append(valStr);
+                }
+                else
+                {
+                    sb.Append("\"").Append(EscapeJsonString(keyStr)).Append("\":").Append(valStr);
+                }
+            }
+
+            sb.Append(prettyPrint ? "\n}" : "}");
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Serializes any collection, set, stack, or queue into standard, cross-language
+        /// JSON Array format (<c>[Item1, Item2, ...]</c>) containing pure data only.
+        /// </summary>
+        /// <typeparam name="T">Element type.</typeparam>
+        /// <param name="source">Collection to serialize.</param>
+        /// <param name="prettyPrint">Whether to format with indentation.</param>
+        /// <returns>Standard JSON Array string.</returns>
+        public static string ToStandardJson<T>(
+            this IEnumerable<T> source,
+            bool prettyPrint = true)
+        {
+            if (source == null) return "null";
+
+            var sb = new System.Text.StringBuilder();
+            sb.Append(prettyPrint ? "[\n" : "[");
+
+            bool first = true;
+            foreach (var item in source)
+            {
+                if (!first)
+                {
+                    sb.Append(prettyPrint ? ",\n" : ",");
+                }
+                first = false;
+
+                string itemStr = SerializeValue(item, indentLevel: 1, prettyPrint: prettyPrint);
+                if (prettyPrint)
+                {
+                    sb.Append("  ").Append(itemStr);
+                }
+                else
+                {
+                    sb.Append(itemStr);
+                }
+            }
+
+            sb.Append(prettyPrint ? "\n]" : "]");
+            return sb.ToString();
+        }
+
+        // ── Internal Pure Data JSON Helpers ───────────────────────────────────
+
+        private static string FormatJsonKey(object key)
+        {
+            if (key == null) return "null";
+            return key.ToString();
+        }
+
+        private static string SerializeValue(object val, int indentLevel, bool prettyPrint)
+        {
+            if (val == null) return "null";
+
+            if (val is string s)
+                return "\"" + EscapeJsonString(s) + "\"";
+
+            if (val is bool b)
+                return b ? "true" : "false";
+
+            if (val is byte || val is sbyte || val is short || val is ushort ||
+                val is int || val is uint || val is long || val is ulong)
+                return val.ToString();
+
+            if (val is float f)
+                return f.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            if (val is double d)
+                return d.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            if (val is decimal dec)
+                return dec.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            if (val is Enum e)
+                return "\"" + e.ToString() + "\"";
+
+            // Check if value is a dictionary (Dictionary of Dictionaries)
+            if (val is System.Collections.IEnumerable enumerable && !(val is string))
+            {
+                var dictKvpList = new List<KeyValuePair<string, object>>();
+                bool isDictionary = false;
+
+                foreach (var item in enumerable)
+                {
+                    if (item == null) continue;
+                    var itemType = item.GetType();
+                    var keyProp = itemType.GetProperty("Key");
+                    var valProp = itemType.GetProperty("Value");
+
+                    if (keyProp != null && valProp != null)
+                    {
+                        isDictionary = true;
+                        var k = keyProp.GetValue(item, null);
+                        var v = valProp.GetValue(item, null);
+                        dictKvpList.Add(new KeyValuePair<string, object>(FormatJsonKey(k), v));
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                if (isDictionary)
+                {
+                    string indent = new string(' ', indentLevel * 2);
+                    string innerIndent = new string(' ', (indentLevel + 1) * 2);
+                    var sb = new System.Text.StringBuilder();
+                    sb.Append(prettyPrint ? "{\n" : "{");
+
+                    for (int i = 0; i < dictKvpList.Count; i++)
+                    {
+                        if (i > 0) sb.Append(prettyPrint ? ",\n" : ",");
+                        var kvp = dictKvpList[i];
+                        string valJson = SerializeValue(kvp.Value, indentLevel + 1, prettyPrint);
+
+                        if (prettyPrint)
+                        {
+                            sb.Append(innerIndent).Append("\"").Append(EscapeJsonString(kvp.Key)).Append("\": ").Append(valJson);
+                        }
+                        else
+                        {
+                            sb.Append("\"").Append(EscapeJsonString(kvp.Key)).Append("\":").Append(valJson);
+                        }
+                    }
+
+                    sb.Append(prettyPrint ? "\n" + indent + "}" : "}");
+                    return sb.ToString();
+                }
+            }
+
+            // For custom classes/structs (Data only: strip delegates, events, non-serialized fields)
+            try
+            {
+                string rawJson = JsonUtility.ToJson(val, prettyPrint);
+                if (!string.IsNullOrEmpty(rawJson) && rawJson != "{}" && rawJson != "null")
+                {
+                    if (prettyPrint && indentLevel > 0)
+                    {
+                        // Indent multiline JSON object
+                        string indent = new string(' ', indentLevel * 2);
+                        string[] lines = rawJson.Split('\n');
+                        for (int i = 1; i < lines.Length; i++)
+                        {
+                            lines[i] = indent + lines[i];
+                        }
+                        return string.Join("\n", lines);
+                    }
+                    return rawJson;
+                }
+            }
+            catch
+            {
+                // Fallback to string representation if JsonUtility fails on non-serializable type
+            }
+
+            return "\"" + EscapeJsonString(val.ToString()) + "\"";
+        }
+
+        private static string EscapeJsonString(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            return s.Replace("\\", "\\\\")
+                    .Replace("\"", "\\\"")
+                    .Replace("\n", "\\n")
+                    .Replace("\r", "\\r")
+                    .Replace("\t", "\\t");
+        }
     }
 }
