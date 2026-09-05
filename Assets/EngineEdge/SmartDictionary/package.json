@@ -1,0 +1,36 @@
+{
+  "name": "com.engineedge.smartdictionary",
+  "version": "1.0.0",
+  "displayName": "Smart Dictionary Pro",
+  "description": "A fully serializable, Inspector-friendly generic Dictionary for Unity with LINQ support, events, safe access API, merge operations, JSON/PlayerPrefs serialization, and 5 bonus collection types (HashSet, Stack, Queue, OrderedDictionary, BiDictionary).",
+  "unity": "2021.3",
+  "author": {
+    "name": "EngineEdge",
+    "url": "https://engineedge.dev"
+  },
+  "keywords": ["dictionary", "serializable", "inspector", "linq", "collections", "utility"],
+  "license": "MIT",
+  "dependencies": {},
+  "samples": [
+    {
+      "displayName": "Basic Usage",
+      "description": "Demonstrates MonoBehaviour inventory and ScriptableObject GameConfig usage.",
+      "path": "Samples~/BasicUsage"
+    },
+    {
+      "displayName": "LINQ and Events",
+      "description": "Demonstrates LINQ extension methods and reactive events on dictionary mutation.",
+      "path": "Samples~/LinqAndEvents"
+    },
+    {
+      "displayName": "Save and Load",
+      "description": "Demonstrates JSON file I/O and PlayerPrefs persistence.",
+      "path": "Samples~/SaveLoad"
+    },
+    {
+      "displayName": "Advanced Collections",
+      "description": "Demonstrates SerializableHashSet, Stack, Queue, OrderedDict, and BiDictionary.",
+      "path": "Samples~/AdvancedCollections"
+    }
+  ]
+}
