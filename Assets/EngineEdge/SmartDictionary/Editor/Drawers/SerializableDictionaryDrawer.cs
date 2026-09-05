@@ -525,7 +525,7 @@ namespace EngineEdge.SmartDictionary.Editor
                     }
                     else
                     {
-                        keyIdentifier = keyProp.objectReferenceValue.GetInstanceID().ToString();
+                        keyIdentifier = $"{keyProp.objectReferenceValue.name}_{keyProp.objectReferenceValue.GetHashCode()}";
                     }
                 }
                 else

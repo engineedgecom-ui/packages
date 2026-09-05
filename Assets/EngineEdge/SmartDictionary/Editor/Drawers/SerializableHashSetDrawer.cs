@@ -375,7 +375,7 @@ namespace EngineEdge.SmartDictionary.Editor
                 string s;
                 if (prop.propertyType == SerializedPropertyType.ObjectReference)
                 {
-                    s = prop.objectReferenceValue != null ? prop.objectReferenceValue.GetInstanceID().ToString() : "null_obj_ref";
+                    s = prop.objectReferenceValue != null ? $"{prop.objectReferenceValue.name}_{prop.objectReferenceValue.GetHashCode()}" : "null_obj_ref";
                 }
                 else if (prop.propertyType == SerializedPropertyType.String)
                 {

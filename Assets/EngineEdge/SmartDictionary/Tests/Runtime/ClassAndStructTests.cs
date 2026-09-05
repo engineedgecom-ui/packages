@@ -5,7 +5,6 @@
 // ============================================================
 
 using NUnit.Framework;
-using EngineEdge.SmartDictionary.Example;
 
 namespace EngineEdge.SmartDictionary.Tests
 {
