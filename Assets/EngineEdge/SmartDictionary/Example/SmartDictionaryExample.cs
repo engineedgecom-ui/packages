@@ -444,12 +444,8 @@ namespace EngineEdge.SmartDictionary.Example
             matchmakingQueue.OnCleared -= HandleQueueCleared;
         }
 
-        private void Start()
+        private void Awake()
         {
-            LogAction("SmartDictionary Pro Runtime Testing Suite Started.", "<color=#55FFFF>[INIT]</color>");
-            LogAction($"Loaded {heroStats.Count} Heroes, {inventory.Count} Inventory Items, {registeredHeroes.Count} Set Members.");
-
-            // Populate initial stack & queue
             if (statHistory.Count == 0)
             {
                 statHistory.Push(new CombatStats(100, 10, 5, 0.05f));
@@ -461,6 +457,23 @@ namespace EngineEdge.SmartDictionary.Example
                 matchmakingQueue.Enqueue(new CharacterProfile("Lancelot", "Knight"));
                 matchmakingQueue.Enqueue(new CharacterProfile("Morgana", "Witch"));
             }
+
+            Debug.Log(JsonUtility.ToJson(new SmartDictionarySaveData
+            {
+                heroStats = this.heroStats,
+                categoryModifiers = this.categoryModifiers,
+                activeSkills = this.activeSkills,
+                badgeOwners = this.badgeOwners,
+                fastTravelWaypoints = this.fastTravelWaypoints,
+                heroSkillTrees = this.heroSkillTrees,
+                registeredHeroes = this.registeredHeroes,
+                baseStatTemplates = this.baseStatTemplates,
+                inventory = this.inventory
+            }, true));
+        }
+
+        private void Start()
+        {
         }
 
         // ------------------------------------------------------------------ //
@@ -540,6 +553,20 @@ namespace EngineEdge.SmartDictionary.Example
         //  Helper & Logging
         // ------------------------------------------------------------------ //
 
+        [System.Serializable]
+        private class SmartDictionarySaveData
+        {
+            public ObservableDictionary<CharacterProfile, CombatStats> heroStats;
+            public SerializableDictionary<ItemCategoryKey, ItemModifier> categoryModifiers;
+            public SerializableOrderedDictionary<CharacterProfile, SkillData> activeSkills;
+            public SerializableBiDictionary<PlayerBadge, string> badgeOwners;
+            public ObservableDictionary<WaypointNavigation.Key, WaypointNavigation.Value> fastTravelWaypoints;
+            public SerializableDictionary<CharacterProfile, SkillTreeDictionary> heroSkillTrees;
+            public ObservableHashSet<CharacterProfile> registeredHeroes;
+            public SerializableHashSet<CombatStats> baseStatTemplates;
+            public ObservableDictionary<string, int> inventory;
+        }
+
         private void LogAction(string message, string tag = null)
         {
             string time = System.DateTime.Now.ToString("HH:mm:ss");
@@ -549,7 +576,6 @@ namespace EngineEdge.SmartDictionary.Example
             {
                 _actionLogs.RemoveAt(0);
             }
-            Debug.Log($"[SmartDictionary] {message}");
         }
 
         // ------------------------------------------------------------------ //

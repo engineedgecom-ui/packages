@@ -144,7 +144,7 @@ var copy    = a.Clone();
 |--------|-------------|
 | `Add(key, value)` | Adds an entry; throws on duplicate key |
 | `TryAdd(key, value)` | Adds if absent; returns `false` on duplicate |
-| `Remove(key)` | Removes the entry; throws if absent |
+| `Remove(key)` | Removes the entry; returns `false` if absent |
 | `TryRemove(key)` | Removes if present; returns `false` if absent |
 | `ContainsKey(key)` | Returns `true` if the key exists |
 | `TryGetValue(key, out value)` | Standard TryGetValue pattern |
@@ -171,7 +171,7 @@ var copy    = a.Clone();
 | `OnCleared` / `OnClearedEvent` | Fired when dictionary is cleared |
 | `OnCountChanged` / `OnCountChangedEvent` | Fired with the new count whenever size changes |
 
-### LINQ Extensions — `SerializableDictionaryExtensions`
+### LINQ Extensions — `SmartDictionaryLinqExtensions`
 
 | Method | Description |
 |--------|-------------|
@@ -184,7 +184,7 @@ var copy    = a.Clone();
 | `AverageValues()` | Mean of all numeric values |
 | `MinValue()` / `MaxValue()` | Min / Max of all values |
 
-### Merge Extensions
+### Merge Extensions — `SmartDictionaryMergeExtensions`
 
 | Method | Description |
 |--------|-------------|
@@ -195,7 +195,7 @@ var copy    = a.Clone();
 | `Union(other)` | Combine, source wins on conflicts |
 | `Clone()` | Shallow copy |
 
-### Persistence Extensions
+### Persistence Extensions — `SmartDictionarySerializationExtensions`
 
 | Method | Description |
 |--------|-------------|
@@ -223,9 +223,25 @@ All five types:
 
 ---
 
-## Samples
+## Samples & Examples
 
-Import any sample via **Window → Package Manager → Smart Dictionary Pro → Samples**.
+### Ready-to-Use Example Scripts (`Example/`)
+
+The `Example/` directory includes modular, focused example scripts demonstrating each collection type:
+
+| Script | Collection Types Demonstrated | Key Features |
+|--------|------------------------------|--------------|
+| **`DictionaryExample.cs`** | `SerializableDictionary`, `ObservableDictionary` | Primitives, custom classes/structs, reactive events, safe access |
+| **`HashSetExample.cs`** | `SerializableHashSet`, `ObservableHashSet` | Unique string/struct/class sets, duplicate rejection, filtering |
+| **`OrderedDictionaryExample.cs`** | `SerializableOrderedDictionary` | Insertion order preservation, `MoveToFront`, `MoveToBack`, `GetAt` |
+| **`BiDictionaryExample.cs`** | `SerializableBiDictionary` | Two-way O(1) Key ↔ Value lookups, inverse access |
+| **`StackAndQueueExample.cs`** | `SerializableStack`, `SerializableQueue` | LIFO undo/history stack, FIFO lobby/messaging queue |
+| **`NestedStructuresExample.cs`** | Nested Classes, Dict-of-Dicts, 6-Layer Keys | Hierarchical composition, sub-dictionaries |
+| **`SampleScene.unity`** | All collection types | Interactive runtime testing suite with on-screen GUI |
+
+### Package Manager Samples
+
+Import additional samples via **Window → Package Manager → Smart Dictionary Pro → Samples**:
 
 | Sample | Description |
 |--------|-------------|

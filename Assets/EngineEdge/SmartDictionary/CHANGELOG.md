@@ -40,7 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modern Inspector Events toolbar at the bottom of the collection with `Active` / `Muted` pill toggle.
 - `EventsEnabled` property to toggle all events at runtime.
 
-#### LINQ Extensions (`SerializableDictionaryExtensions`)
+#### LINQ Extensions (`SmartDictionaryLinqExtensions`)
 - `ToSerializableDictionary(keySelector, valueSelector)` — build from `IEnumerable<T>`.
 - `WhereDict(predicate)` — filter entries.
 - `SelectValues(selector)` — project values to a new type.
@@ -52,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `MinValue()` — minimum value.
 - `MaxValue()` — maximum value.
 
-#### Merge / Set Operations
+#### Merge / Set Operations (`SmartDictionaryMergeExtensions`)
 - `Merge(other)` — adds keys from `other` that are absent in the source.
 - `MergeOverwrite(other)` — adds or overwrites all keys from `other`.
 - `Intersect(other)` — new dictionary with only keys present in both.
@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Union(other)` — combines both, source value wins on conflict.
 - `Clone()` — shallow copy of the dictionary.
 
-#### Persistence
+#### Persistence (`SmartDictionarySerializationExtensions`)
 - `SaveToFile(path)` — serializes to a UTF-8 JSON file.
 - `LoadFromFile(path)` — deserializes from a UTF-8 JSON file.
 - `ToPlayerPrefs(prefsKey)` — stores as a JSON string in `PlayerPrefs`.
@@ -79,12 +79,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SerializableHashSetDrawer` — single-column property drawer with dupe detection, remove, add, Undo.
 - `EngineEdge.SmartDictionary.Editor` assembly definition (Editor-only, references runtime asmdef).
 
-#### Tests
-- `EngineEdge.SmartDictionary.Tests` assembly definition with `UNITY_INCLUDE_TESTS` constraint.
-- `SerializableDictionaryTests` — 18 core tests (add, remove, TryAdd, TryRemove, GetOrDefault, GetOrAdd, AddOrUpdate, FindKey, FindValue, FindAllByValue, Filter, Map, Clear, foreach, deconstruct).
-- `SerializableDictionaryLinqTests` — 10 LINQ tests.
-- `SerializableDictionaryEventTests` — 6 event tests (add, remove, update, clear, count, events-disabled).
-- `SerializableDictionaryMergeTests` — 7 merge / set-operation tests.
+#### Interactive Example & Runtime Suite
+- Modular, dedicated example scripts in `Example/`: `DictionaryExample.cs`, `HashSetExample.cs`, `OrderedDictionaryExample.cs`, `BiDictionaryExample.cs`, `StackAndQueueExample.cs`, and `NestedStructuresExample.cs`.
+- `SmartDictionaryExample.cs` + `SampleScene.unity` — comprehensive interactive testing suite with on-screen runtime GUI, tabbed navigation, live mutation log, and models demonstrating primitives, custom classes, custom structs, nested structures, and 6-layer deep keys.
 
 #### Samples
 - **BasicUsage** — `DemoController.cs` (MonoBehaviour) + `GameConfig.cs` (ScriptableObject).

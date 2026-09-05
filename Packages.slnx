@@ -1,7 +1,7 @@
 ﻿<Solution>
   <Project Path="asset-store-tools-editor.csproj" />
-  <Project Path="EngineEdge.SmartDictionary.Editor.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="EngineEdge.SmartDictionary.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="EngineEdge.SmartDictionary.Editor.csproj" />
 </Solution>
