@@ -88,9 +88,14 @@ int   highest = inventory.MaxValue();
 double avg    = inventory.AverageValues();
 ```
 
-### Events
+### Reactive Events (`ObservableDictionary<TKey, TValue>`)
+
+When you need reactive notifications or Inspector-serialized UnityEvents, use `ObservableDictionary<TKey, TValue>` (inherits from `SerializableDictionary<TKey, TValue>`):
 
 ```csharp
+[SerializeField]
+private ObservableDictionary<string, int> inventory = new ObservableDictionary<string, int>();
+
 inventory.OnEntryAdded   += (k, v)      => Debug.Log($"Added {k}");
 inventory.OnEntryRemoved += (k, v)      => Debug.Log($"Removed {k}");
 inventory.OnEntryUpdated += (k, old, n) => Debug.Log($"{k}: {old} → {n}");
@@ -100,6 +105,8 @@ inventory.OnCountChanged += c           => Debug.Log($"Count: {c}");
 // Temporarily pause events without removing handlers
 inventory.EventsEnabled = false;
 ```
+
+> **Zero Overhead**: When you don't need events, standard `SerializableDictionary<TKey, TValue>` carries zero delegate allocations, zero serialized event overhead, and doesn't display event bars in the Inspector!
 
 ### Save and Load
 
@@ -152,7 +159,17 @@ var copy    = a.Clone();
 | `Clear()` | Removes all entries |
 | `Count` | Number of entries |
 | `Keys` / `Values` | Collection views |
-| `EventsEnabled` | Toggle all events at once |
+
+### Reactive — `ObservableDictionary<TKey, TValue> : SerializableDictionary<TKey, TValue>`
+
+| Member | Description |
+|--------|-------------|
+| `EventsEnabled` | Toggle all events on/off |
+| `OnEntryAdded` / `OnEntryAddedEvent` | Fired when a new key-value pair is added |
+| `OnEntryRemoved` / `OnEntryRemovedEvent` | Fired when an entry is removed |
+| `OnEntryUpdated` / `OnEntryUpdatedEvent` | Fired when an existing key's value changes |
+| `OnCleared` / `OnClearedEvent` | Fired when dictionary is cleared |
+| `OnCountChanged` / `OnCountChangedEvent` | Fired with the new count whenever size changes |
 
 ### LINQ Extensions — `SerializableDictionaryExtensions`
 

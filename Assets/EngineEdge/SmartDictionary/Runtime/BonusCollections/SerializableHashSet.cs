@@ -1,27 +1,26 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace EngineEdge.SmartDictionary
 {
-    /// <summary>
-    /// Serializable UnityEvent that passes the new item count when set size changes.
-    /// </summary>
-    [Serializable]
-    public class HashSetCountEvent : UnityEvent<int> { }
-
     /// <summary>
     /// A serializable generic <see cref="HashSet{T}"/> that implements
     /// <see cref="ISerializationCallbackReceiver"/> so Unity can persist its contents
     /// across serialization boundaries (e.g. Play-mode, domain reload, asset saves).
     /// </summary>
     /// <remarks>
+    /// <para>
     /// Because Unity cannot natively serialize a <see cref="HashSet{T}"/>, this class
     /// mirrors the set into a backing <see cref="List{T}"/> during
     /// <see cref="OnBeforeSerialize"/> and rebuilds the set from that list during
     /// <see cref="OnAfterDeserialize"/>. Duplicate entries encountered during
     /// deserialization are silently discarded after a warning is logged.
+    /// </para>
+    /// <para>
+    /// For reactive, event-driven sets with C# Actions and serialized UnityEvents,
+    /// see <see cref="ObservableHashSet{T}"/>.
+    /// </para>
     /// </remarks>
     /// <typeparam name="T">
     /// The element type. Must be serializable by Unity (e.g. primitives, structs
@@ -41,73 +40,7 @@ namespace EngineEdge.SmartDictionary
         private List<T> _serializedItems = new List<T>();
 
         [NonSerialized]
-        private bool _isRuntimeModified = false;
-
-        [SerializeField]
-        [Tooltip("If true, set-mutation events (OnItemAdded, OnItemRemoved, etc.) will be dispatched.")]
-        private bool _eventsEnabled = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether set-mutation events are fired.
-        /// </summary>
-        /// <value><c>true</c> by default.</value>
-        public bool EventsEnabled
-        {
-            get => _eventsEnabled;
-            set => _eventsEnabled = value;
-        }
-
-        // ── Events ───────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Raised after an item is successfully added to the set.
-        /// </summary>
-        public event Action<T> OnItemAdded;
-
-        /// <summary>
-        /// Raised after an item is successfully removed from the set.
-        /// </summary>
-        public event Action<T> OnItemRemoved;
-
-        /// <summary>
-        /// Raised after the set has been cleared via <see cref="Clear"/>.
-        /// </summary>
-        public event Action OnCleared;
-
-        /// <summary>
-        /// Raised whenever the number of items in the set changes.
-        /// </summary>
-        public event Action<int> OnCountChanged;
-
-        // ── Serialized Unity Events ───────────────────────────────────────────────
-
-        [SerializeField]
-        [Tooltip("Fired when a new item is added (only if EventsEnabled is true).")]
-        private UnityEvent _onItemAddedEvent = new UnityEvent();
-
-        [SerializeField]
-        [Tooltip("Fired when an item is removed (only if EventsEnabled is true).")]
-        private UnityEvent _onItemRemovedEvent = new UnityEvent();
-
-        [SerializeField]
-        [Tooltip("Fired when the set is cleared (only if EventsEnabled is true).")]
-        private UnityEvent _onClearedEvent = new UnityEvent();
-
-        [SerializeField]
-        [Tooltip("Fired with the new count when items change (only if EventsEnabled is true).")]
-        private HashSetCountEvent _onCountChangedEvent = new HashSetCountEvent();
-
-        /// <summary>Serialized UnityEvent invoked when a new item is added.</summary>
-        public UnityEvent OnItemAddedEvent => _onItemAddedEvent;
-
-        /// <summary>Serialized UnityEvent invoked when an item is removed.</summary>
-        public UnityEvent OnItemRemovedEvent => _onItemRemovedEvent;
-
-        /// <summary>Serialized UnityEvent invoked when the set is cleared.</summary>
-        public UnityEvent OnClearedEvent => _onClearedEvent;
-
-        /// <summary>Serialized UnityEvent invoked with the new count when items change.</summary>
-        public HashSetCountEvent OnCountChangedEvent => _onCountChangedEvent;
+        protected bool _isRuntimeModified = false;
 
         // ── Constructors ─────────────────────────────────────────────────────────
 
@@ -157,8 +90,7 @@ namespace EngineEdge.SmartDictionary
         /// <summary>
         /// Called by Unity immediately after the object has been deserialized.
         /// Rebuilds the live <see cref="HashSet{T}"/> from <see cref="_serializedItems"/>.
-        /// Any duplicate entries found in the serialized list are skipped and a
-        /// warning is logged.
+        /// Any duplicate entries found in the serialized list are skipped.
         /// </summary>
         public void OnAfterDeserialize()
         {
@@ -181,78 +113,56 @@ namespace EngineEdge.SmartDictionary
 
         /// <summary>
         /// Adds an item to the set and tracks modification for serialization.
-        /// Fires <see cref="OnItemAdded"/>, <see cref="OnItemAddedEvent"/>,
-        /// <see cref="OnCountChanged"/>, and <see cref="OnCountChangedEvent"/>.
         /// </summary>
         /// <param name="item">The element to add.</param>
         /// <returns><c>true</c> if the element is added; <c>false</c> if it already exists.</returns>
-        public new bool Add(T item)
+        public virtual new bool Add(T item)
         {
             bool added = base.Add(item);
             if (added)
             {
                 _isRuntimeModified = true;
-                if (_eventsEnabled)
-                {
-                    OnItemAdded?.Invoke(item);
-                    _onItemAddedEvent?.Invoke();
-                    OnCountChanged?.Invoke(Count);
-                    _onCountChangedEvent?.Invoke(Count);
-                }
             }
             return added;
         }
 
         /// <summary>
         /// Removes an item from the set and tracks modification for serialization.
-        /// Fires <see cref="OnItemRemoved"/>, <see cref="OnItemRemovedEvent"/>,
-        /// <see cref="OnCountChanged"/>, and <see cref="OnCountChangedEvent"/>.
         /// </summary>
         /// <param name="item">The element to remove.</param>
         /// <returns><c>true</c> if the element is found and removed; otherwise <c>false</c>.</returns>
-        public new bool Remove(T item)
+        public virtual new bool Remove(T item)
         {
             bool removed = base.Remove(item);
             if (removed)
             {
                 _isRuntimeModified = true;
-                if (_eventsEnabled)
-                {
-                    OnItemRemoved?.Invoke(item);
-                    _onItemRemovedEvent?.Invoke();
-                    OnCountChanged?.Invoke(Count);
-                    _onCountChangedEvent?.Invoke(Count);
-                }
             }
             return removed;
         }
 
         /// <summary>
         /// Attempts to add <paramref name="item"/> to the set.
-        /// If the item is not already present it is added and
-        /// <see cref="OnItemAdded"/> is raised.
         /// </summary>
         /// <param name="item">The element to add.</param>
         /// <returns>
         /// <c>true</c> if <paramref name="item"/> was added;
         /// <c>false</c> if it was already present.
         /// </returns>
-        public bool TryAdd(T item)
+        public virtual bool TryAdd(T item)
         {
             return Add(item);
         }
 
         /// <summary>
         /// Attempts to remove <paramref name="item"/> from the set.
-        /// If the item is present it is removed and <see cref="OnItemRemoved"/>
-        /// is raised.
         /// </summary>
         /// <param name="item">The element to remove.</param>
         /// <returns>
         /// <c>true</c> if <paramref name="item"/> was found and removed;
         /// <c>false</c> if it was not present.
         /// </returns>
-        public bool TryRemove(T item)
+        public virtual bool TryRemove(T item)
         {
             return Remove(item);
         }
@@ -288,19 +198,12 @@ namespace EngineEdge.SmartDictionary
         }
 
         /// <summary>
-        /// Removes all elements from the set and raises <see cref="OnCleared"/> and <see cref="OnCountChanged"/>.
+        /// Removes all elements from the set.
         /// </summary>
-        public new void Clear()
+        public virtual new void Clear()
         {
             base.Clear();
             _isRuntimeModified = true;
-            if (_eventsEnabled)
-            {
-                OnCleared?.Invoke();
-                _onClearedEvent?.Invoke();
-                OnCountChanged?.Invoke(0);
-                _onCountChangedEvent?.Invoke(0);
-            }
         }
     }
 }

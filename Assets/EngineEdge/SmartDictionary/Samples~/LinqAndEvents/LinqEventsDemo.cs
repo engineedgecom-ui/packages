@@ -23,14 +23,14 @@ namespace EngineEdge.SmartDictionary.Samples
         // ------------------------------------------------------------------ //
 
         /// <summary>
-        /// Player name → score mapping.  Populate this in the Inspector
+        /// Player name → score mapping (observable with events). Populate this in the Inspector
         /// before entering Play mode.
         /// </summary>
-        [Header("Scores")]
+        [Header("Scores (Observable)")]
         [Tooltip("Player name → integer score")]
         [SerializeField]
-        private SerializableDictionary<string, int> scores
-            = new SerializableDictionary<string, int>();
+        private ObservableDictionary<string, int> scores
+            = new ObservableDictionary<string, int>();
 
         // ------------------------------------------------------------------ //
         //  Unity lifecycle

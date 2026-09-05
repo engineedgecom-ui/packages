@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Core — `SerializableDictionary<TKey, TValue>`
 - Full `IDictionary<TKey, TValue>` implementation backed by a serializable list of key-value pairs.
+- Lightweight, zero-overhead base collection with no event delegates or serialized UnityEvent allocations.
 - Custom Unity property drawer with collapsible foldout and entry-count label.
 - Case-insensitive search / filter bar in the Inspector.
 - Two-column (key | value) table layout with alternating row colours.
@@ -31,14 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Filter(predicate)` — returns a new dictionary with only matching entries.
 - `Map(selector)` — returns a new dictionary with projected values.
 - `foreach` deconstruct syntax: `foreach (var (k, v) in dict)`.
-- `EventsEnabled` property to suspend all events without removing handlers.
 
-#### Events
-- `OnEntryAdded` — fires when a new key is added.
-- `OnEntryRemoved` — fires when a key is removed.
-- `OnEntryUpdated` — fires with old and new value when an existing key's value changes.
-- `OnCleared` — fires when `Clear()` is called.
-- `OnCountChanged` — fires with the new count after any mutation.
+#### Reactive Collections — `ObservableDictionary<TKey, TValue>` & `ObservableHashSet<T>`
+- Inherits from `SerializableDictionary` / `SerializableHashSet` with zero code duplication.
+- C# `Action` events: `OnEntryAdded`, `OnEntryRemoved`, `OnEntryUpdated`, `OnCleared`, `OnCountChanged`.
+- Serialized UnityEvents configurable in the Inspector (`OnEntryAddedEvent`, etc.).
+- Modern Inspector Events toolbar at the bottom of the collection with `Active` / `Muted` pill toggle.
+- `EventsEnabled` property to toggle all events at runtime.
 
 #### LINQ Extensions (`SerializableDictionaryExtensions`)
 - `ToSerializableDictionary(keySelector, valueSelector)` — build from `IEnumerable<T>`.

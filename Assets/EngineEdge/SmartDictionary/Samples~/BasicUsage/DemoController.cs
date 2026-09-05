@@ -22,11 +22,11 @@ namespace EngineEdge.SmartDictionary.Samples
         //  Serialized fields
         // ------------------------------------------------------------------ //
 
-        /// <summary>Maps item names to their stack counts.</summary>
-        [Header("Inventory")]
+        /// <summary>Maps item names to their stack counts (observable with events).</summary>
+        [Header("Inventory (Observable)")]
         [Tooltip("Item name → quantity")]
-        public SerializableDictionary<string, int> itemInventory
-            = new SerializableDictionary<string, int>();
+        public ObservableDictionary<string, int> itemInventory
+            = new ObservableDictionary<string, int>();
 
         /// <summary>Maps team names to their representative colour.</summary>
         [Header("Team Colours")]

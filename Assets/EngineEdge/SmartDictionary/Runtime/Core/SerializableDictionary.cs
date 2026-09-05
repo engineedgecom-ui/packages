@@ -2,16 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace EngineEdge.SmartDictionary
 {
-    /// <summary>
-    /// Serializable UnityEvent that passes the new entry count when dictionary size changes.
-    /// </summary>
-    [Serializable]
-    public class DictionaryCountEvent : UnityEvent<int> { }
-
     /// <summary>
     /// A generic dictionary that is fully serializable by Unity's serialization system.
     /// Inherits from <see cref="Dictionary{TKey, TValue}"/> and implements
@@ -27,9 +20,8 @@ namespace EngineEdge.SmartDictionary
     /// <see cref="ISerializationCallbackReceiver"/>.
     /// </para>
     /// <para>
-    /// All mutating operations optionally fire <see cref="System.Action"/>-based
-    /// events so that other game systems can react without coupling. Toggle them with
-    /// <see cref="EventsEnabled"/>.
+    /// For reactive, event-driven collections with C# Actions and serialized UnityEvents,
+    /// see <see cref="ObservableDictionary{TKey, TValue}"/>.
     /// </para>
     /// </remarks>
     /// <typeparam name="TKey">
@@ -50,106 +42,7 @@ namespace EngineEdge.SmartDictionary
             = new List<SerializableKeyValuePair<TKey, TValue>>();
 
         [NonSerialized]
-        private bool _isRuntimeModified = false;
-
-        // ── Events ────────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Raised after a new entry is successfully added to the dictionary.
-        /// </summary>
-        /// <remarks>
-        /// Parameters: <c>TKey key</c>, <c>TValue value</c>.
-        /// Only fires when <see cref="EventsEnabled"/> is <c>true</c>.
-        /// </remarks>
-        public event Action<TKey, TValue> OnEntryAdded;
-
-        /// <summary>
-        /// Raised after an entry is successfully removed from the dictionary.
-        /// </summary>
-        /// <remarks>
-        /// Parameters: <c>TKey key</c>, <c>TValue removedValue</c>.
-        /// Only fires when <see cref="EventsEnabled"/> is <c>true</c>.
-        /// </remarks>
-        public event Action<TKey, TValue> OnEntryRemoved;
-
-        /// <summary>
-        /// Raised after an existing entry's value is replaced.
-        /// </summary>
-        /// <remarks>
-        /// Parameters: <c>TKey key</c>, <c>TValue oldValue</c>, <c>TValue newValue</c>.
-        /// Only fires when <see cref="EventsEnabled"/> is <c>true</c>.
-        /// </remarks>
-        public event Action<TKey, TValue, TValue> OnEntryUpdated;
-
-        /// <summary>
-        /// Raised after the dictionary is cleared via <see cref="Clear"/>.
-        /// Only fires when <see cref="EventsEnabled"/> is <c>true</c>.
-        /// </summary>
-        public event Action OnCleared;
-
-        /// <summary>
-        /// Raised whenever the number of entries in the dictionary changes.
-        /// </summary>
-        /// <remarks>
-        /// Parameter: <c>int newCount</c> — the count after the change.
-        /// Only fires when <see cref="EventsEnabled"/> is <c>true</c>.
-        /// </remarks>
-        public event Action<int> OnCountChanged;
-
-        // ── Configuration ─────────────────────────────────────────────────────────
-
-        [SerializeField]
-        [Tooltip("If true, dictionary mutation events (OnEntryAdded, OnEntryRemoved, etc.) will be dispatched.")]
-        private bool _eventsEnabled = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether dictionary-mutation events are
-        /// fired. Set to <c>false</c> to suppress all event callbacks temporarily
-        /// (e.g. during bulk import operations).
-        /// </summary>
-        /// <value><c>true</c> by default.</value>
-        public bool EventsEnabled
-        {
-            get => _eventsEnabled;
-            set => _eventsEnabled = value;
-        }
-
-        // ── Serialized Unity Events ───────────────────────────────────────────────
-
-        [SerializeField]
-        [Tooltip("Fired when a new entry is added (only if EventsEnabled is true).")]
-        private UnityEvent _onEntryAddedEvent = new UnityEvent();
-
-        [SerializeField]
-        [Tooltip("Fired when an entry is removed (only if EventsEnabled is true).")]
-        private UnityEvent _onEntryRemovedEvent = new UnityEvent();
-
-        [SerializeField]
-        [Tooltip("Fired when an existing entry's value is replaced (only if EventsEnabled is true).")]
-        private UnityEvent _onEntryUpdatedEvent = new UnityEvent();
-
-        [SerializeField]
-        [Tooltip("Fired when the dictionary is cleared (only if EventsEnabled is true).")]
-        private UnityEvent _onClearedEvent = new UnityEvent();
-
-        [SerializeField]
-        [Tooltip("Fired with the new count when entries change (only if EventsEnabled is true).")]
-        private DictionaryCountEvent _onCountChangedEvent = new DictionaryCountEvent();
-
-        /// <summary>Serialized UnityEvent invoked when a new entry is added.</summary>
-        public UnityEvent OnEntryAddedEvent => _onEntryAddedEvent;
-
-        /// <summary>Serialized UnityEvent invoked when an entry is removed.</summary>
-        public UnityEvent OnEntryRemovedEvent => _onEntryRemovedEvent;
-
-        /// <summary>Serialized UnityEvent invoked when an existing entry's value is replaced.</summary>
-        public UnityEvent OnEntryUpdatedEvent => _onEntryUpdatedEvent;
-
-        /// <summary>Serialized UnityEvent invoked when the dictionary is cleared.</summary>
-        public UnityEvent OnClearedEvent => _onClearedEvent;
-
-        /// <summary>Serialized UnityEvent invoked with the new count when entries change.</summary>
-        public DictionaryCountEvent OnCountChangedEvent => _onCountChangedEvent;
+        protected bool _isRuntimeModified = false;
 
         // ── Constructors ──────────────────────────────────────────────────────────
 
@@ -236,9 +129,7 @@ namespace EngineEdge.SmartDictionary
         /// <see cref="KeyNotFoundException"/>.
         /// </para>
         /// <para>
-        /// <b>Set:</b> fires <see cref="OnEntryAdded"/> when the key is new, or
-        /// <see cref="OnEntryUpdated"/> when the key already exists.
-        /// <see cref="OnCountChanged"/> is fired whenever the total count changes.
+        /// <b>Set:</b> adds or updates the entry for <paramref name="key"/>.
         /// </para>
         /// </remarks>
         /// <param name="key">The key of the element to get or set.</param>
@@ -246,74 +137,39 @@ namespace EngineEdge.SmartDictionary
         /// The value associated with <paramref name="key"/>, or
         /// <c>default(TValue)</c> if the key is not present.
         /// </returns>
-        public new TValue this[TKey key]
+        public virtual new TValue this[TKey key]
         {
             get => TryGetValue(key, out var val) ? val : default;
             set
             {
-                bool existed = TryGetValue(key, out var oldValue);
                 base[key] = value;
                 _isRuntimeModified = true;
-
-                if (EventsEnabled)
-                {
-                    if (existed)
-                    {
-                        OnEntryUpdated?.Invoke(key, oldValue, value);
-                        _onEntryUpdatedEvent?.Invoke();
-                    }
-                    else
-                    {
-                        OnEntryAdded?.Invoke(key, value);
-                        _onEntryAddedEvent?.Invoke();
-                        OnCountChanged?.Invoke(Count);
-                        _onCountChangedEvent?.Invoke(Count);
-                    }
-                }
             }
         }
 
         // ── Core Mutation Methods ─────────────────────────────────────────────────
 
         /// <summary>
-        /// Adds <paramref name="key"/> with <paramref name="value"/> to the dictionary
-        /// and fires <see cref="OnEntryAdded"/> and <see cref="OnCountChanged"/>.
+        /// Adds <paramref name="key"/> with <paramref name="value"/> to the dictionary.
         /// </summary>
         /// <param name="key">The key to add.</param>
         /// <param name="value">The value to associate with <paramref name="key"/>.</param>
         /// <exception cref="ArgumentException">
         /// Thrown when <paramref name="key"/> already exists in the dictionary.
         /// </exception>
-        public new void Add(TKey key, TValue value)
+        public virtual new void Add(TKey key, TValue value)
         {
             base.Add(key, value);
             _isRuntimeModified = true;
-
-            if (EventsEnabled)
-            {
-                OnEntryAdded?.Invoke(key, value);
-                _onEntryAddedEvent?.Invoke();
-                OnCountChanged?.Invoke(Count);
-                _onCountChangedEvent?.Invoke(Count);
-            }
         }
 
         /// <summary>
-        /// Removes all entries from the dictionary and fires <see cref="OnCleared"/>
-        /// followed by <see cref="OnCountChanged"/>.
+        /// Removes all entries from the dictionary.
         /// </summary>
-        public new void Clear()
+        public virtual new void Clear()
         {
             base.Clear();
             _isRuntimeModified = true;
-
-            if (EventsEnabled)
-            {
-                OnCleared?.Invoke();
-                _onClearedEvent?.Invoke();
-                OnCountChanged?.Invoke(0);
-                _onCountChangedEvent?.Invoke(0);
-            }
         }
 
         // ── Safe Access Methods ───────────────────────────────────────────────────
@@ -327,44 +183,33 @@ namespace EngineEdge.SmartDictionary
         /// <returns>
         /// <c>true</c> if the entry was added; <c>false</c> if the key was already present.
         /// </returns>
-        public new bool TryAdd(TKey key, TValue value)
+        public virtual new bool TryAdd(TKey key, TValue value)
         {
             if (ContainsKey(key))
                 return false;
 
             base.Add(key, value);
             _isRuntimeModified = true;
-
-            if (EventsEnabled)
-            {
-                OnEntryAdded?.Invoke(key, value);
-                _onEntryAddedEvent?.Invoke();
-                OnCountChanged?.Invoke(Count);
-                _onCountChangedEvent?.Invoke(Count);
-            }
-
             return true;
         }
 
         /// <summary>
-        /// Removes the entry with the specified <paramref name="key"/> from the dictionary
-        /// and fires <see cref="OnEntryRemoved"/> and <see cref="OnCountChanged"/>.
+        /// Removes the entry with the specified <paramref name="key"/> from the dictionary.
         /// </summary>
         /// <param name="key">The key of the element to remove.</param>
         /// <returns><c>true</c> if the element is successfully found and removed; otherwise <c>false</c>.</returns>
-        public new bool Remove(TKey key)
+        public virtual new bool Remove(TKey key)
         {
             return TryRemove(key);
         }
 
         /// <summary>
-        /// Removes the entry with the specified <paramref name="key"/> and retrieves the removed value,
-        /// firing <see cref="OnEntryRemoved"/> and <see cref="OnCountChanged"/>.
+        /// Removes the entry with the specified <paramref name="key"/> and retrieves the removed value.
         /// </summary>
         /// <param name="key">The key of the element to remove.</param>
         /// <param name="value">When this method returns, contains the removed value.</param>
         /// <returns><c>true</c> if the element is successfully found and removed; otherwise <c>false</c>.</returns>
-        public new bool Remove(TKey key, out TValue value)
+        public virtual new bool Remove(TKey key, out TValue value)
         {
             return TryRemove(key, out value);
         }
@@ -376,22 +221,12 @@ namespace EngineEdge.SmartDictionary
         /// <returns>
         /// <c>true</c> if the entry was found and removed; otherwise <c>false</c>.
         /// </returns>
-        public bool TryRemove(TKey key)
+        public virtual bool TryRemove(TKey key)
         {
-            if (!TryGetValue(key, out var removedValue))
+            if (!base.Remove(key))
                 return false;
 
-            base.Remove(key);
             _isRuntimeModified = true;
-
-            if (EventsEnabled)
-            {
-                OnEntryRemoved?.Invoke(key, removedValue);
-                _onEntryRemovedEvent?.Invoke();
-                OnCountChanged?.Invoke(Count);
-                _onCountChangedEvent?.Invoke(Count);
-            }
-
             return true;
         }
 
@@ -407,22 +242,13 @@ namespace EngineEdge.SmartDictionary
         /// <returns>
         /// <c>true</c> if the entry was found and removed; otherwise <c>false</c>.
         /// </returns>
-        public bool TryRemove(TKey key, out TValue value)
+        public virtual bool TryRemove(TKey key, out TValue value)
         {
             if (!TryGetValue(key, out value))
                 return false;
 
             base.Remove(key);
             _isRuntimeModified = true;
-
-            if (EventsEnabled)
-            {
-                OnEntryRemoved?.Invoke(key, value);
-                _onEntryRemovedEvent?.Invoke();
-                OnCountChanged?.Invoke(Count);
-                _onCountChangedEvent?.Invoke(Count);
-            }
-
             return true;
         }
 
@@ -437,7 +263,7 @@ namespace EngineEdge.SmartDictionary
         /// <c>default(TValue)</c>.
         /// </param>
         /// <returns>The stored value, or <paramref name="defaultValue"/>.</returns>
-        public TValue GetOrDefault(TKey key, TValue defaultValue = default)
+        public virtual TValue GetOrDefault(TKey key, TValue defaultValue = default)
             => TryGetValue(key, out var value) ? value : defaultValue;
 
         /// <summary>
@@ -456,7 +282,7 @@ namespace EngineEdge.SmartDictionary
         /// <exception cref="ArgumentNullException">
         /// Thrown when <paramref name="factory"/> is <c>null</c>.
         /// </exception>
-        public TValue GetOrAdd(TKey key, Func<TKey, TValue> factory)
+        public virtual TValue GetOrAdd(TKey key, Func<TKey, TValue> factory)
         {
             if (factory == null) throw new ArgumentNullException(nameof(factory));
 
@@ -464,42 +290,20 @@ namespace EngineEdge.SmartDictionary
                 return existing;
 
             var newValue = factory(key);
-            Add(key, newValue); // uses the overridden Add which fires events
+            Add(key, newValue);
             return newValue;
         }
 
         /// <summary>
         /// Inserts <paramref name="key"/> with <paramref name="value"/> if the key is
         /// absent, or replaces the existing value if the key is already present.
-        /// Fires <see cref="OnEntryAdded"/> on insert or <see cref="OnEntryUpdated"/>
-        /// on replacement.
         /// </summary>
         /// <param name="key">The key to add or update.</param>
         /// <param name="value">The value to store.</param>
-        public void AddOrUpdate(TKey key, TValue value)
+        public virtual void AddOrUpdate(TKey key, TValue value)
         {
-            if (TryGetValue(key, out var oldValue))
-            {
-                base[key] = value;
-                _isRuntimeModified = true;
-                if (EventsEnabled)
-                {
-                    OnEntryUpdated?.Invoke(key, oldValue, value);
-                    _onEntryUpdatedEvent?.Invoke();
-                }
-            }
-            else
-            {
-                base.Add(key, value);
-                _isRuntimeModified = true;
-                if (EventsEnabled)
-                {
-                    OnEntryAdded?.Invoke(key, value);
-                    _onEntryAddedEvent?.Invoke();
-                    OnCountChanged?.Invoke(Count);
-                    _onCountChangedEvent?.Invoke(Count);
-                }
-            }
+            base[key] = value;
+            _isRuntimeModified = true;
         }
 
         /// <summary>
@@ -519,37 +323,22 @@ namespace EngineEdge.SmartDictionary
         /// Thrown when <paramref name="addFactory"/> or <paramref name="updateFactory"/>
         /// is <c>null</c>.
         /// </exception>
-        public void AddOrUpdate(TKey key,
-                                Func<TKey, TValue> addFactory,
-                                Func<TKey, TValue, TValue> updateFactory)
+        public virtual void AddOrUpdate(TKey key,
+                                        Func<TKey, TValue> addFactory,
+                                        Func<TKey, TValue, TValue> updateFactory)
         {
             if (addFactory    == null) throw new ArgumentNullException(nameof(addFactory));
             if (updateFactory == null) throw new ArgumentNullException(nameof(updateFactory));
 
             if (TryGetValue(key, out var oldValue))
             {
-                var newValue = updateFactory(key, oldValue);
-                base[key] = newValue;
-                _isRuntimeModified = true;
-                if (EventsEnabled)
-                {
-                    OnEntryUpdated?.Invoke(key, oldValue, newValue);
-                    _onEntryUpdatedEvent?.Invoke();
-                }
+                base[key] = updateFactory(key, oldValue);
             }
             else
             {
-                var newValue = addFactory(key);
-                base.Add(key, newValue);
-                _isRuntimeModified = true;
-                if (EventsEnabled)
-                {
-                    OnEntryAdded?.Invoke(key, newValue);
-                    _onEntryAddedEvent?.Invoke();
-                    OnCountChanged?.Invoke(Count);
-                    _onCountChangedEvent?.Invoke(Count);
-                }
+                base.Add(key, addFactory(key));
             }
+            _isRuntimeModified = true;
         }
 
         // ── Search Methods ────────────────────────────────────────────────────────

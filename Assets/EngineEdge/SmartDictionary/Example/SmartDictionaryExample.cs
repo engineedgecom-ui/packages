@@ -16,9 +16,9 @@ namespace EngineEdge.SmartDictionary.Example
         //  Inspector-Visible Collections
         // ------------------------------------------------------------------ //
 
-        [Header("Item Inventory (string -> int)")]
-        [Tooltip("Configure item names and quantities. Supports duplicates warning and search filtering in Inspector.")]
-        public SerializableDictionary<string, int> inventory = new SerializableDictionary<string, int>
+        [Header("Item Inventory (Observable: string -> int)")]
+        [Tooltip("Reactive dictionary with events. Supports duplicates warning, search filtering, and UnityEvents toolbar in Inspector.")]
+        public ObservableDictionary<string, int> inventory = new ObservableDictionary<string, int>
         {
             { "Health Potion", 15 },
             { "Mana Potion", 8 },
@@ -75,7 +75,7 @@ namespace EngineEdge.SmartDictionary.Example
 
         private void Reset()
         {
-            inventory = new SerializableDictionary<string, int>
+            inventory = new ObservableDictionary<string, int>
             {
                 { "Health Potion", 15 },
                 { "Mana Potion", 8 },

@@ -1,7 +1,7 @@
 // ============================================================
 //  EngineEdge – Smart Dictionary Pro
 //  EventTests.cs
-//  NUnit tests for SerializableDictionary event system.
+//  NUnit tests for ObservableDictionary and ObservableHashSet event systems.
 // ============================================================
 
 using NUnit.Framework;
@@ -10,18 +10,18 @@ namespace EngineEdge.SmartDictionary.Tests
 {
     /// <summary>
     /// Tests that verify the event system on
-    /// <see cref="SerializableDictionary{TKey,TValue}"/>.
+    /// <see cref="ObservableDictionary{TKey,TValue}"/> and <see cref="ObservableHashSet{T}"/>.
     /// </summary>
     [TestFixture]
-    public class SerializableDictionaryEventTests
+    public class ObservableCollectionEventTests
     {
         // ------------------------------------------------------------------ //
         //  Helpers
         // ------------------------------------------------------------------ //
 
-        /// <summary>Creates a fresh dictionary with events enabled.</summary>
-        private SerializableDictionary<string, int> NewDict()
-            => new SerializableDictionary<string, int>();
+        /// <summary>Creates a fresh observable dictionary with events enabled.</summary>
+        private ObservableDictionary<string, int> NewDict()
+            => new ObservableDictionary<string, int>();
 
         // ------------------------------------------------------------------ //
         //  OnEntryAdded
@@ -237,7 +237,7 @@ namespace EngineEdge.SmartDictionary.Tests
         [Test]
         public void HashSet_UnityEvents_FiredWhenEnabled_AndMutedWhenDisabled()
         {
-            var set = new SerializableHashSet<string>();
+            var set = new ObservableHashSet<string>();
             bool added = false;
             bool removed = false;
             bool cleared = false;
