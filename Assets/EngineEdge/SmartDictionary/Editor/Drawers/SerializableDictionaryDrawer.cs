@@ -152,8 +152,9 @@ namespace EngineEdge.SmartDictionary.Editor
             else
             {
                 // Column headers
+                GetColumnRatios(pairs, out float keyRatio, out float valRatio);
                 var colHeaderRect = new Rect(contentRect.x, currentY, contentRect.width, ColumnHeaderH);
-                DrawColumnHeaders(colHeaderRect);
+                DrawColumnHeaders(colHeaderRect, keyRatio, valRatio);
                 currentY += ColumnHeaderH;
 
                 var indices = GetFilteredIndices(pairs, search);
@@ -166,7 +167,7 @@ namespace EngineEdge.SmartDictionary.Editor
                     var pairProp = pairs.GetArrayElementAtIndex(realIdx);
                     float rowH = GetRowHeight(pairProp);
                     var rowRect = new Rect(contentRect.x, currentY, contentRect.width, rowH);
-                    DrawRow(rowRect, pairs, realIdx, i, dupSet, ref removeAt, rowH);
+                    DrawRow(rowRect, pairs, realIdx, i, dupSet, ref removeAt, rowH, keyRatio, valRatio);
                     currentY += rowH;
                 }
 
@@ -230,11 +231,46 @@ namespace EngineEdge.SmartDictionary.Editor
                 s_SearchStrings[path] = newSearch;
         }
 
-        private void DrawColumnHeaders(Rect rect)
+        private static void GetColumnRatios(SerializedProperty pairs, out float keyRatio, out float valRatio)
+        {
+            if (pairs != null && pairs.arraySize > 0)
+            {
+                var firstPair = pairs.GetArrayElementAtIndex(0);
+                var keyProp = firstPair.FindPropertyRelative("_key") ?? firstPair.FindPropertyRelative("Key");
+                var valProp = firstPair.FindPropertyRelative("_value") ?? firstPair.FindPropertyRelative("Value");
+
+                bool keyIsGeneric = keyProp != null && keyProp.propertyType == SerializedPropertyType.Generic && keyProp.hasVisibleChildren;
+                bool valIsGeneric = valProp != null && valProp.propertyType == SerializedPropertyType.Generic && valProp.hasVisibleChildren;
+
+                if (keyIsGeneric && valIsGeneric)
+                {
+                    keyRatio = 0.48f;
+                    valRatio = 0.48f;
+                    return;
+                }
+                if (keyIsGeneric)
+                {
+                    keyRatio = 0.58f;
+                    valRatio = 0.38f;
+                    return;
+                }
+                if (valIsGeneric)
+                {
+                    keyRatio = 0.38f;
+                    valRatio = 0.58f;
+                    return;
+                }
+            }
+
+            keyRatio = KeyRatio;
+            valRatio = ValRatio;
+        }
+
+        private void DrawColumnHeaders(Rect rect, float keyRatio, float valRatio)
         {
             var usable = rect.width - RemoveWidth;
-            var keyWidth = usable * KeyRatio;
-            var valWidth = usable * ValRatio;
+            var keyWidth = usable * keyRatio;
+            var valWidth = usable * valRatio;
 
             var keyHeaderRect = new Rect(rect.x + 4f, rect.y, keyWidth, rect.height);
             var valHeaderRect = new Rect(rect.x + 4f + keyWidth, rect.y, valWidth, rect.height);
@@ -257,7 +293,8 @@ namespace EngineEdge.SmartDictionary.Editor
         }
 
         private void DrawRow(Rect rect, SerializedProperty pairs, int realIndex, int visualIndex,
-                             HashSet<int> dupSet, ref int removeAt, float rowH)
+                             HashSet<int> dupSet, ref int removeAt, float rowH,
+                             float keyRatio, float valRatio)
         {
             var bgStyle = (visualIndex % 2 == 0) ? InspectorStyles.RowEven : InspectorStyles.RowOdd;
             GUI.Box(rect, GUIContent.none, bgStyle);
@@ -270,8 +307,8 @@ namespace EngineEdge.SmartDictionary.Editor
             var isDuplicate = dupSet.Contains(realIndex);
 
             var usable = rect.width - RemoveWidth - (isDuplicate ? 20f : 0f) - 6f;
-            var keyWidth = usable * KeyRatio;
-            var valWidth = usable * ValRatio;
+            var keyWidth = usable * keyRatio;
+            var valWidth = usable * valRatio;
 
             float x = rect.x + 3f;
             float y = rect.y + 2f;
@@ -288,14 +325,28 @@ namespace EngineEdge.SmartDictionary.Editor
                 x += 18f;
             }
 
+            var origLabelWidth = EditorGUIUtility.labelWidth;
+            var origIndent = EditorGUI.indentLevel;
+
             // Key field
             if (keyProp != null)
             {
                 float keyH = EditorGUI.GetPropertyHeight(keyProp, true);
                 var keyRect = new Rect(x, y, keyWidth - 4f, keyH);
-                var keyLabel = (keyProp.propertyType == SerializedPropertyType.Generic && keyProp.hasVisibleChildren)
-                    ? new GUIContent(keyProp.displayName)
-                    : GUIContent.none;
+                
+                GUIContent keyLabel;
+                if (keyProp.propertyType == SerializedPropertyType.Generic && keyProp.hasVisibleChildren)
+                {
+                    var summary = GetPropertySummary(keyProp);
+                    keyLabel = new GUIContent(!string.IsNullOrEmpty(summary) ? summary : keyProp.displayName);
+                }
+                else
+                {
+                    keyLabel = GUIContent.none;
+                }
+
+                EditorGUI.indentLevel = 0;
+                EditorGUIUtility.labelWidth = Mathf.Clamp((keyWidth - 4f) * 0.40f, 50f, 110f);
                 EditorGUI.PropertyField(keyRect, keyProp, keyLabel, true);
             }
             else
@@ -310,9 +361,20 @@ namespace EngineEdge.SmartDictionary.Editor
             {
                 float valH = EditorGUI.GetPropertyHeight(valueProp, true);
                 var valRect = new Rect(x, y, valWidth - 4f, valH);
-                var valLabel = (valueProp.propertyType == SerializedPropertyType.Generic && valueProp.hasVisibleChildren)
-                    ? new GUIContent(valueProp.displayName)
-                    : GUIContent.none;
+
+                GUIContent valLabel;
+                if (valueProp.propertyType == SerializedPropertyType.Generic && valueProp.hasVisibleChildren)
+                {
+                    var summary = GetPropertySummary(valueProp);
+                    valLabel = new GUIContent(!string.IsNullOrEmpty(summary) ? summary : valueProp.displayName);
+                }
+                else
+                {
+                    valLabel = GUIContent.none;
+                }
+
+                EditorGUI.indentLevel = 0;
+                EditorGUIUtility.labelWidth = Mathf.Clamp((valWidth - 4f) * 0.40f, 50f, 110f);
                 EditorGUI.PropertyField(valRect, valueProp, valLabel, true);
             }
             else
@@ -320,6 +382,9 @@ namespace EngineEdge.SmartDictionary.Editor
                 var errRect = new Rect(x, y, valWidth - 4f, EditorGUIUtility.singleLineHeight);
                 EditorGUI.LabelField(errRect, "(No value)");
             }
+
+            EditorGUIUtility.labelWidth = origLabelWidth;
+            EditorGUI.indentLevel = origIndent;
 
             // Remove button (top aligned)
             var btnRect = new Rect(rect.xMax - RemoveWidth - 2f, y, RemoveWidth, EditorGUIUtility.singleLineHeight);
@@ -549,20 +614,96 @@ namespace EngineEdge.SmartDictionary.Editor
             return dups;
         }
 
+        private static string GetPropertySummary(SerializedProperty prop)
+        {
+            if (prop == null) return string.Empty;
+
+            if (prop.propertyType == SerializedPropertyType.ObjectReference)
+            {
+                return prop.objectReferenceValue != null ? prop.objectReferenceValue.name : "(None)";
+            }
+
+            if (prop.propertyType != SerializedPropertyType.Generic || !prop.hasVisibleChildren)
+            {
+                return SerializedPropertyToString(prop);
+            }
+
+            var copy = prop.Copy();
+            var end = copy.GetEndProperty();
+            var parts = new List<string>();
+            bool enter = true;
+
+            while (copy.NextVisible(enter) && !SerializedProperty.EqualContents(copy, end))
+            {
+                enter = false;
+                switch (copy.propertyType)
+                {
+                    case SerializedPropertyType.String:
+                        if (!string.IsNullOrEmpty(copy.stringValue))
+                            parts.Add(copy.stringValue);
+                        break;
+                    case SerializedPropertyType.Integer:
+                        parts.Add(copy.intValue.ToString());
+                        break;
+                    case SerializedPropertyType.Float:
+                        parts.Add(copy.floatValue.ToString("0.##"));
+                        break;
+                    case SerializedPropertyType.Enum:
+                        parts.Add(copy.enumDisplayNames.Length > copy.enumValueIndex
+                            ? copy.enumDisplayNames[copy.enumValueIndex]
+                            : copy.enumValueIndex.ToString());
+                        break;
+                    case SerializedPropertyType.ObjectReference:
+                        if (copy.objectReferenceValue != null)
+                            parts.Add(copy.objectReferenceValue.name);
+                        break;
+                }
+
+                if (parts.Count >= 2) break;
+            }
+
+            return parts.Count > 0 ? string.Join(" • ", parts) : prop.displayName;
+        }
+
         private static string SerializedPropertyToString(SerializedProperty prop)
         {
-            return prop.propertyType switch
+            if (prop == null) return string.Empty;
+
+            switch (prop.propertyType)
             {
-                SerializedPropertyType.String          => prop.stringValue,
-                SerializedPropertyType.Integer         => prop.intValue.ToString(),
-                SerializedPropertyType.Float           => prop.floatValue.ToString("G"),
-                SerializedPropertyType.Boolean         => prop.boolValue.ToString(),
-                SerializedPropertyType.ObjectReference => prop.objectReferenceValue != null ? prop.objectReferenceValue.name : string.Empty,
-                SerializedPropertyType.Enum            => prop.enumDisplayNames.Length > prop.enumValueIndex
-                                                              ? prop.enumDisplayNames[prop.enumValueIndex]
-                                                              : prop.enumValueIndex.ToString(),
-                _                                      => prop.type
-            };
+                case SerializedPropertyType.String:
+                    return prop.stringValue;
+                case SerializedPropertyType.Integer:
+                    return prop.intValue.ToString();
+                case SerializedPropertyType.Float:
+                    return prop.floatValue.ToString("G");
+                case SerializedPropertyType.Boolean:
+                    return prop.boolValue.ToString();
+                case SerializedPropertyType.ObjectReference:
+                    return prop.objectReferenceValue != null
+                        ? $"{prop.objectReferenceValue.name}_{prop.objectReferenceValue.GetHashCode()}"
+                        : "null_obj_ref";
+                case SerializedPropertyType.Enum:
+                    return prop.enumDisplayNames.Length > prop.enumValueIndex
+                        ? prop.enumDisplayNames[prop.enumValueIndex]
+                        : prop.enumValueIndex.ToString();
+                case SerializedPropertyType.Generic:
+                {
+                    if (!prop.hasVisibleChildren) return prop.type;
+                    var sb = new System.Text.StringBuilder();
+                    var iterator = prop.Copy();
+                    var endProperty = iterator.GetEndProperty();
+                    bool enterChildren = true;
+                    while (iterator.NextVisible(enterChildren) && !SerializedProperty.EqualContents(iterator, endProperty))
+                    {
+                        enterChildren = false;
+                        sb.Append(iterator.name).Append(':').Append(SerializedPropertyToString(iterator)).Append(';');
+                    }
+                    return sb.Length > 0 ? sb.ToString() : prop.type;
+                }
+                default:
+                    return prop.displayName;
+            }
         }
 
         // ------------------------------------------------------------------ //
