@@ -487,7 +487,7 @@ MonoBehaviour:
         defense: 95
         critChance: 0.15
     - _key:
-        _heroName: Merlin
+        _heroName: 1
         _heroClass: Mage
       _value:
         health: 650
@@ -578,6 +578,136 @@ MonoBehaviour:
         badgeId: 103
         title: Iron Wall
       _value: Player_Charlie
+  fastTravelWaypoints:
+    _serializedPairs:
+    - _key:
+        _zoneName: Sanctuary
+        _coord:
+          _x: 100
+          _y: 250
+      _value:
+        _beaconName: Ancient Obelisk
+        _requirement:
+          _minLevel: 1
+          _goldCost: 0
+    - _key:
+        _zoneName: Dragon Peak
+        _coord:
+          _x: 750
+          _y: 920
+      _value:
+        _beaconName: Summit Beacon
+        _requirement:
+          _minLevel: 50
+          _goldCost: 500
+    - _key:
+        _zoneName: Sunken Ruins
+        _coord:
+          _x: 320
+          _y: 110
+      _value:
+        _beaconName: Submerged Portal
+        _requirement:
+          _minLevel: 30
+          _goldCost: 250
+    _eventsEnabled: 1
+    _onEntryAddedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onEntryRemovedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onEntryUpdatedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onClearedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+    _onCountChangedEvent:
+      m_PersistentCalls:
+        m_Calls: []
+  waypointRegistry:
+    _serializedPairs:
+    - _key:
+        _zoneName: Capital City
+        _coord:
+          _x: 0
+          _y: 0
+      _value:
+        _beaconName: Grand Portal
+        _requirement:
+          _minLevel: 1
+          _goldCost: 0
+    - _key:
+        _zoneName: Frozen Wastes
+        _coord:
+          _x: 900
+          _y: 1400
+      _value:
+        _beaconName: Ice Pillar
+        _requirement:
+          _minLevel: 70
+          _goldCost: 1200
+  heroSkillTrees:
+    _serializedPairs:
+    - _key:
+        _heroName: Arthur
+        _heroClass: Paladin
+      _value:
+        _serializedPairs:
+        - _key: Holy Strike
+          _value: 5
+        - _key: Divine Aura
+          _value: 3
+        - _key: Lay on Hands
+          _value: 1
+    - _key:
+        _heroName: Merlin
+        _heroClass: Mage
+      _value:
+        _serializedPairs:
+        - _key: Fireball
+          _value: 10
+        - _key: Frost Nova
+          _value: 4
+        - _key: Teleport
+          _value: 2
+  galacticStations:
+    _serializedPairs:
+    - _key:
+        _galaxyName: MilkyWay
+        _quadrant:
+          _quadrantCode: Alpha-7
+          _starSystem:
+            _systemCode: 104
+            _planet:
+              _planetName: Sol-3
+              _sector:
+                _sectorCode: Sector-A
+                _coordinate:
+                  _x: 42
+                  _y: 88
+      _value:
+        _stationName: Earth Orbital Defense
+        _defenseRating: 9500
+        _isHostile: 0
+    - _key:
+        _galaxyName: Andromeda
+        _quadrant:
+          _quadrantCode: Omega-9
+          _starSystem:
+            _systemCode: 880
+            _planet:
+              _planetName: Xylar-Prime
+              _sector:
+                _sectorCode: Sector-D
+                _coordinate:
+                  _x: 999
+                  _y: 120
+      _value:
+        _stationName: Pirate Dreadnought Outpost
+        _defenseRating: 14200
+        _isHostile: 1
   registeredHeroes:
     _serializedItems:
     - _heroName: Arthur
@@ -616,9 +746,15 @@ MonoBehaviour:
       defense: 100
       critChance: 0.2
   statHistory:
-    _serializedItems: []
+    _serializedItems:
+    - health: 0
+      attackPower: 0
+      defense: 0
+      critChance: 0
   matchmakingQueue:
-    _serializedItems: []
+    _serializedItems:
+    - _heroName: 
+      _heroClass: 
   inventory:
     _serializedPairs:
     - _key: Health Potion
@@ -631,7 +767,7 @@ MonoBehaviour:
       _value: 250
     - _key: Magic Scroll
       _value: 3
-    _eventsEnabled: 1
+    _eventsEnabled: 0
     _onEntryAddedEvent:
       m_PersistentCalls:
         m_Calls: []
