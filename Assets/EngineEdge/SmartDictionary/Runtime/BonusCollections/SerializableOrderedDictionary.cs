@@ -219,6 +219,13 @@ namespace EngineEdge.SmartDictionary
         }
 
         /// <summary>
+        /// Removes the element with the specified key from the dictionary.
+        /// </summary>
+        /// <param name="key">The key of the element to remove.</param>
+        /// <returns><c>true</c> if the element is successfully removed; otherwise <c>false</c>.</returns>
+        public bool Remove(TKey key) => TryRemove(key);
+
+        /// <summary>
         /// Determines whether the dictionary contains an element with the specified key.
         /// </summary>
         /// <param name="key">The key to locate.</param>

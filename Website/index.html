@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EngineEdge — High-Performance Game Dev Tools for Unity</title>
+  <meta name="description" content="EngineEdge builds enterprise-grade, high-performance Unity tools and collections. Home of SmartDictionary Pro, featuring 8 serializable collections, reactive observables, dynamic Inspector UX, and deep 6-layer keys.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'cyber-dark': '#07090E',
+            'cyber-card': 'rgba(16, 22, 34, 0.75)',
+            'cyber-cyan': '#00F0FF',
+            'cyber-gold': '#FFB800',
+            'cyber-green': '#00FF88',
+            'cyber-red': '#FF4757',
+            'cyber-purple': '#A855F7',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#07090E] text-slate-200 antialiased selection:bg-cyan-500/30 selection:text-cyan-200 min-h-screen relative cyber-grid">
+
+  <!-- Glow Backdrop -->
+  <div class="fixed inset-0 pointer-events-none radial-glow z-0"></div>
+
+  <!-- ── Navigation Bar ──────────────────────────────────────────────────────── -->
+  <nav class="sticky top-0 z-50 glass-nav">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-2.5 group">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-black text-lg glow-cyan group-hover:scale-105 transition">
+            ⚡
+          </div>
+          <div class="flex flex-col">
+            <span class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
+              Engine<span class="text-cyan-400">Edge</span>
+            </span>
+            <span class="text-[9px] font-mono tracking-widest text-slate-400 uppercase -mt-1">Game Dev Tools</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <div class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+          <a href="#flagship" class="hover:text-cyan-400 transition flex items-center gap-1">
+            <i data-lucide="package" class="w-4 h-4 text-cyan-400"></i> SmartDictionary Pro
+          </a>
+          <a href="#playground" class="hover:text-cyan-400 transition flex items-center gap-1">
+            <i data-lucide="play-circle" class="w-4 h-4 text-emerald-400"></i> Live Playground
+          </a>
+          <a href="#features" class="hover:text-cyan-400 transition">Architecture</a>
+          <a href="#benchmarks" class="hover:text-cyan-400 transition">Benchmarks</a>
+          <a href="#docs" class="hover:text-cyan-400 transition">Docs</a>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="hidden sm:flex items-center gap-3">
+          <a href="#playground" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/10 transition flex items-center gap-1.5">
+            <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyan-400"></i> Interactive Demo
+          </a>
+          <a href="https://assetstore.unity.com" target="_blank" class="px-4 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black shadow-lg shadow-cyan-500/20 transition flex items-center gap-1.5 hover:scale-105">
+            <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-black"></i> Asset Store
+          </a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2 border-t border-white/5 bg-[#0B0F19]">
+      <a href="#flagship" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-800">SmartDictionary Pro</a>
+      <a href="#playground" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-800">Live Playground</a>
+      <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-800">Architecture</a>
+      <a href="#benchmarks" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-800">Benchmarks</a>
+      <a href="#docs" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-800">Docs</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero Section ───────────────────────────────────────────────────────── -->
+  <section class="relative pt-20 pb-24 overflow-hidden z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      
+      <!-- Announcement Tag -->
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-medium mb-8 animate-pulse-glow">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        SmartDictionary Pro v1.0.0 is Live &bull; Unity 2021.3 LTS through Unity 6 Verified
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight gradient-text-hero leading-tight sm:leading-none max-w-5xl mx-auto">
+        High-Performance Game Dev Architecture for <span class="gradient-text-cyan">Unity</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="mt-6 text-base sm:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+        EngineEdge creates zero-overhead, Inspector-first tools for game developers. Featuring 8 production collections, reactive observable delegates, dynamic multi-line inspector drawers, and deep 6-layer class keys.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+        <a href="#playground" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold text-sm shadow-xl shadow-cyan-500/25 transition hover:scale-105 flex items-center gap-2">
+          <i data-lucide="play" class="w-4 h-4 fill-black"></i> Launch Live In-Browser Playground
+        </a>
+        <a href="#flagship" class="px-6 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-white/10 font-semibold text-sm transition hover:border-cyan-500/40 flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i> Explore SmartDictionary Pro
+        </a>
+      </div>
+
+      <!-- Hero Visual: Simulated Unity Inspector Card -->
+      <div class="mt-16 max-w-4xl mx-auto relative group">
+        <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition duration-1000"></div>
+        
+        <div class="relative rounded-xl bg-[#141822] border border-white/15 shadow-2xl overflow-hidden text-left">
+          <!-- Inspector Window Titlebar -->
+          <div class="inspector-header px-4 py-2.5 flex items-center justify-between border-b border-black/40">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+              <span class="text-xs font-medium text-slate-300 ml-2 font-mono flex items-center gap-1.5">
+                <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-400"></i> Unity Inspector &bull; SmartDictionaryDemo.cs
+              </span>
+            </div>
+            <span class="text-[11px] font-mono text-cyan-400/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">
+              Unity 6000.5.7f1 Compatible
+            </span>
+          </div>
+
+          <!-- Inspector Content Emulation -->
+          <div class="p-4 sm:p-6 space-y-4 font-mono text-xs">
+            <!-- Header Row with Foldout -->
+            <div class="flex items-center justify-between bg-slate-800/80 p-2.5 rounded-lg border border-white/5">
+              <div class="flex items-center gap-2 font-bold text-white">
+                <span class="text-cyan-400">&blacktriangledown;</span>
+                <span>Hero Stats</span>
+                <span class="text-slate-400 font-normal">(ObservableDictionary&lt;CharacterProfile, CombatStats&gt;)</span>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-semibold">
+                3 Entries &bull; Events Active
+              </span>
+            </div>
+
+            <!-- Simulated Table Rows -->
+            <div class="space-y-2">
+              <div class="inspector-row-even p-3 rounded border border-white/5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                  <span class="font-bold text-white">Arthur</span>
+                  <span class="text-slate-400">(Paladin)</span>
+                </div>
+                <div class="text-slate-300">
+                  HP: <b class="text-emerald-400">1200</b> | ATK: <b class="text-amber-400">85</b> | DEF: <b class="text-blue-400">95</b> | CRIT: <b>15%</b>
+                </div>
+              </div>
+
+              <div class="inspector-row-odd p-3 rounded border border-white/5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                  <span class="font-bold text-white">Merlin</span>
+                  <span class="text-slate-400">(Mage)</span>
+                </div>
+                <div class="text-slate-300">
+                  HP: <b class="text-emerald-400">650</b> | ATK: <b class="text-amber-400">140</b> | DEF: <b class="text-blue-400">30</b> | CRIT: <b>35%</b>
+                </div>
+              </div>
+
+              <div class="inspector-row-even p-3 rounded border border-white/5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                  <span class="font-bold text-white">Robin</span>
+                  <span class="text-slate-400">(Ranger)</span>
+                </div>
+                <div class="text-slate-300">
+                  HP: <b class="text-emerald-400">800</b> | ATK: <b class="text-amber-400">110</b> | DEF: <b class="text-blue-400">50</b> | CRIT: <b>45%</b>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Inspector Footer -->
+            <div class="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-white/5">
+              <span class="flex items-center gap-1.5 text-emerald-400">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Custom Class Keys & Struct Values Evaluated with IEquatable
+              </span>
+              <span class="font-mono text-cyan-400">Zero YAML Event Overhead</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Flagship Product: SmartDictionary Pro ──────────────────────────────── -->
+  <section id="flagship" class="py-20 relative z-10 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="text-center max-w-3xl mx-auto">
+        <span class="text-xs font-mono font-semibold tracking-wider uppercase text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+          Flagship Suite
+        </span>
+        <h2 class="mt-4 text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+          SmartDictionary <span class="gradient-text-gold">Pro</span>
+        </h2>
+        <p class="mt-4 text-base sm:text-lg text-slate-400">
+          A modular, production-ready collection framework engineered specifically to resolve Unity's serialization limitations with zero performance penalty.
+        </p>
+      </div>
+
+      <!-- 8-Collection Grid -->
+      <div class="mt-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        
+        <!-- Card 1 -->
+        <div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
+              <i data-lucide="database" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg text-white">SerializableDictionary</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              Base dictionary with zero event overhead and clean YAML serialization. Features safe access methods (TryAdd, GetOrDefault, AddOrUpdate).
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 font-mono text-[11px] text-cyan-400 font-semibold">
+            Pure Base &bull; Zero Allocations
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4">
+              <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg text-white">ObservableDictionary</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              Reactive subclass with C# Action delegates, serialized UnityEvent fields, and runtime EventsEnabled toggle for wire-free UI architecture.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 font-mono text-[11px] text-emerald-400 font-semibold">
+            Reactive &bull; Action + UnityEvent
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4">
+              <i data-lucide="list-ordered" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg text-white">OrderedDictionary</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              Maintains deterministic insertion order while preserving O(1) hash lookup. Supports GetAt(index), MoveToFront, and MoveToBack.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 font-mono text-[11px] text-amber-400 font-semibold">
+            Order Preserved &bull; Reorderable
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4">
+              <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg text-white">BiDictionary</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              Two-way bidirectional mapping with O(1) forward (Key &rarr; Value) and reverse (Value &rarr; Key) lookups without linear scanning.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 font-mono text-[11px] text-purple-400 font-semibold">
+            Two-Way &bull; Dual Hash Map
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-4">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg text-white">SerializableHashSet</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              High-performance unique set with automatic duplicate rejection. Backed by IEquatable value comparison for custom classes.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 font-mono text-[11px] text-blue-400 font-semibold">
+            Unique Set &bull; Deduplication
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-4">
+              <i data-lucide="radio" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg text-white">ObservableHashSet</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              Reactive unique set emitting OnItemAdded and OnItemRemoved events. Ideal for hero rosters, tag registries, and achievement unlocks.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 font-mono text-[11px] text-rose-400 font-semibold">
+            Reactive Set &bull; Event Driven
+          </div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-4">
+              <i data-lucide="layers" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg text-white">SerializableStack</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              LIFO stack collection serializing top-first into Unity scenes. Features safe TryPop, TryPeek, and push/pop event listeners.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 font-mono text-[11px] text-indigo-400 font-semibold">
+            LIFO &bull; Undo / Stat History
+          </div>
+        </div>
+
+        <!-- Card 8 -->
+        <div class="glass-card p-6 rounded-xl flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-4">
+              <i data-lucide="fast-forward" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-bold text-lg text-white">SerializableQueue</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              FIFO queue collection with Enqueue, Dequeue, TryDequeue, and event hooks. Perfect for matchmaking, dialog queues, and turn orders.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/5 font-mono text-[11px] text-teal-400 font-semibold">
+            FIFO &bull; Matchmaking / Actions
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Interactive In-Browser Live Playground ──────────────────────────────── -->
+  <section id="playground" class="py-20 relative z-10 bg-[#090D16]/90 border-t border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <span class="text-xs font-mono font-semibold tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+            Interactive Test Suite
+          </span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-white mt-2">
+            Live In-Browser <span class="gradient-text-cyan">Playground</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Test adding, updating, removing, reordering, and duplicate rejection right in your browser.
+          </p>
+        </div>
+
+        <!-- Event Toggle -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900 border border-white/10">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="events-enabled-toggle" checked class="sr-only peer">
+            <div class="w-10 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+          </label>
+          <span class="text-xs font-mono font-semibold text-slate-200">Events Enabled</span>
+        </div>
+      </div>
+
+      <!-- Playground Card Container -->
+      <div class="glass-card-static rounded-2xl border border-white/15 overflow-hidden shadow-2xl">
+        
+        <!-- Tab Bar -->
+        <div class="flex flex-wrap items-center gap-1.5 p-2 bg-slate-950/80 border-b border-white/10">
+          <button onclick="switchTab('heroStats')" id="tab-btn-heroStats" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition border border-cyan-500/40 bg-cyan-500/20 text-cyan-300 flex items-center gap-1.5">
+            <span>🛡️</span> Hero Stats (Class/Struct)
+          </button>
+          <button onclick="switchTab('inventory')" id="tab-btn-inventory" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition border border-transparent text-slate-400 hover:text-white flex items-center gap-1.5">
+            <span>🎒</span> Inventory (String&rarr;Int)
+          </button>
+          <button onclick="switchTab('roster')" id="tab-btn-roster" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition border border-transparent text-slate-400 hover:text-white flex items-center gap-1.5">
+            <span>👥</span> Hero Roster (Set)
+          </button>
+          <button onclick="switchTab('skills')" id="tab-btn-skills" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition border border-transparent text-slate-400 hover:text-white flex items-center gap-1.5">
+            <span>📜</span> Ordered Skills
+          </button>
+          <button onclick="switchTab('stackQueue')" id="tab-btn-stackQueue" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition border border-transparent text-slate-400 hover:text-white flex items-center gap-1.5">
+            <span>📦</span> Stack & Queue
+          </button>
+          <button onclick="switchTab('sixLayer')" id="tab-btn-sixLayer" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition border border-transparent text-slate-400 hover:text-white flex items-center gap-1.5">
+            <span>🌌</span> 6-Layer Deep Key
+          </button>
+        </div>
+
+        <div class="p-4 sm:p-6 space-y-6">
+
+          <!-- ── TAB 0: HERO STATS (CLASS/STRUCT) ── -->
+          <div id="tab-panel-heroStats" class="tab-panel space-y-5">
+            
+            <!-- Controls Box -->
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-3">
+              <div class="text-xs font-bold text-white flex items-center gap-2 font-mono">
+                <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i> 1. Add New Hero (Class Key &rarr; Struct Value)
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                <input type="text" id="hero-name-input" value="Galahad" placeholder="Hero Name" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+                <input type="text" id="hero-class-input" value="Knight" placeholder="Hero Class" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+                <input type="number" id="hero-hp-input" value="950" placeholder="HP" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+                <input type="number" id="hero-atk-input" value="80" placeholder="ATK" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+                <input type="number" id="hero-def-input" value="60" placeholder="DEF" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+              </div>
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button onclick="tryAddHero(document.getElementById('hero-name-input').value, document.getElementById('hero-class-input').value, document.getElementById('hero-hp-input').value, document.getElementById('hero-atk-input').value, document.getElementById('hero-def-input').value)" class="px-3.5 py-1.5 text-xs font-bold rounded bg-cyan-500 hover:bg-cyan-400 text-black transition">
+                  TryAdd Hero (Unique)
+                </button>
+                <button onclick="addOrUpdateHero(document.getElementById('hero-name-input').value, document.getElementById('hero-class-input').value, document.getElementById('hero-hp-input').value, document.getElementById('hero-atk-input').value, document.getElementById('hero-def-input').value)" class="px-3.5 py-1.5 text-xs font-medium rounded bg-slate-800 hover:bg-slate-700 text-white border border-white/10 transition">
+                  Add or Overwrite
+                </button>
+                <button onclick="clearHeroStats()" class="px-3 py-1.5 text-xs font-medium rounded bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-500/30 transition ml-auto">
+                  Clear All
+                </button>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold font-mono text-slate-300">Live Entries in Dictionary:</span>
+                <span id="hero-count-badge" class="text-[11px] font-mono font-semibold text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-500/20">3 entries</span>
+              </div>
+              <div id="hero-stats-table" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+            </div>
+
+          </div>
+
+          <!-- ── TAB 1: INVENTORY (STRING->INT) ── -->
+          <div id="tab-panel-inventory" class="tab-panel hidden space-y-5">
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-3">
+              <div class="text-xs font-bold text-white flex items-center gap-2 font-mono">
+                <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i> 1. Add / Update Inventory Item
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <input type="text" id="inv-name-input" value="Elixir of Life" placeholder="Item Name" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+                <input type="number" id="inv-qty-input" value="3" placeholder="Quantity" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+                <div class="flex items-center gap-2">
+                  <button onclick="tryAddInventory(document.getElementById('inv-name-input').value, document.getElementById('inv-qty-input').value)" class="px-3.5 py-1.5 text-xs font-bold rounded bg-cyan-500 hover:bg-cyan-400 text-black transition flex-1">
+                    TryAdd Item
+                  </button>
+                  <button onclick="setInventoryQty(document.getElementById('inv-name-input').value, document.getElementById('inv-qty-input').value)" class="px-3 py-1.5 text-xs font-medium rounded bg-slate-800 hover:bg-slate-700 text-white border border-white/10 transition">
+                    Set Qty
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold font-mono text-slate-300">Inventory Contents:</span>
+                <span id="inv-count-badge" class="text-[11px] font-mono font-semibold text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-500/20">5 items</span>
+              </div>
+              <div id="inventory-table" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+          <!-- ── TAB 2: HERO ROSTER (SET) ── -->
+          <div id="tab-panel-roster" class="tab-panel hidden space-y-5">
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-3">
+              <div class="text-xs font-bold text-white flex items-center gap-2 font-mono">
+                <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i> 1. Register Hero in Unique Set (ObservableHashSet)
+              </div>
+              <p class="text-[11px] text-slate-400">HashSets reject duplicates automatically via IEquatable equality comparison.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <input type="text" id="roster-name-input" value="Arthur" placeholder="Hero Name" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+                <input type="text" id="roster-class-input" value="Paladin" placeholder="Hero Class" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white focus:outline-none focus:border-cyan-400">
+                <button onclick="addRosterHero(document.getElementById('roster-name-input').value, document.getElementById('roster-class-input').value)" class="px-3.5 py-1.5 text-xs font-bold rounded bg-cyan-500 hover:bg-cyan-400 text-black transition">
+                  Add to Set (Try Duplicate Rejection)
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold font-mono text-slate-300">Set Members (Deduplicated):</span>
+                <span id="roster-count-badge" class="text-[11px] font-mono font-semibold text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-500/20">4 members</span>
+              </div>
+              <div id="roster-table" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+          <!-- ── TAB 3: ORDERED SKILLS ── -->
+          <div id="tab-panel-skills" class="tab-panel hidden space-y-5">
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-3">
+              <div class="text-xs font-bold text-white flex items-center gap-2 font-mono">
+                <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i> 1. Add Skill (SerializableOrderedDictionary)
+              </div>
+              <p class="text-[11px] text-slate-400">Maintains exact insertion sequence and supports instant index reordering (Front/Back).</p>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <input type="text" id="skill-hero-name" value="Kay" placeholder="Hero Name" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white">
+                <input type="text" id="skill-hero-class" value="Assassin" placeholder="Hero Class" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white">
+                <input type="text" id="skill-name-input" value="Shadow Step" placeholder="Skill Name" class="px-3 py-1.5 text-xs bg-slate-950 border border-white/10 rounded text-white">
+                <button onclick="addOrderedSkill(document.getElementById('skill-hero-name').value, document.getElementById('skill-hero-class').value, document.getElementById('skill-name-input').value, 20)" class="px-3.5 py-1.5 text-xs font-bold rounded bg-cyan-500 hover:bg-cyan-400 text-black transition">
+                  Append to End
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold font-mono text-slate-300">Ordered Entries:</span>
+                <span id="skills-count-badge" class="text-[11px] font-mono font-semibold text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-500/20">3 entries</span>
+              </div>
+              <div id="ordered-skills-table" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+
+          <!-- ── TAB 4: STACK & QUEUE ── -->
+          <div id="tab-panel-stackQueue" class="tab-panel hidden space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              
+              <!-- Stack Box -->
+              <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-3">
+                <div class="text-xs font-bold text-white flex items-center justify-between font-mono">
+                  <span>🥞 LIFO Stack (SerializableStack)</span>
+                  <div class="flex items-center gap-1.5">
+                    <button onclick="pushStack(1000, 90)" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded text-[10px] font-bold">
+                      + Push Stat
+                    </button>
+                    <button onclick="popStack()" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded text-[10px] font-bold">
+                      - Pop (Top)
+                    </button>
+                  </div>
+                </div>
+                <div id="stack-items-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
+              </div>
+
+              <!-- Queue Box -->
+              <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-3">
+                <div class="text-xs font-bold text-white flex items-center justify-between font-mono">
+                  <span>🚶 FIFO Queue (SerializableQueue)</span>
+                  <div class="flex items-center gap-1.5">
+                    <button onclick="enqueueHero('Recruit ' + Math.floor(Math.random()*90+10), 'Novice')" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded text-[10px] font-bold">
+                      + Enqueue
+                    </button>
+                    <button onclick="dequeueHero()" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded text-[10px] font-bold">
+                      - Dequeue (Front)
+                    </button>
+                  </div>
+                </div>
+                <div id="queue-items-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── TAB 5: 6-LAYER DEEP KEY ── -->
+          <div id="tab-panel-sixLayer" class="tab-panel hidden space-y-5">
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 space-y-3">
+              <div class="text-xs font-bold text-white flex items-center gap-2 font-mono">
+                <i data-lucide="git-branch" class="w-4 h-4 text-cyan-400"></i> 6-Layer Deep Nested Class Key (GalacticRouteKey)
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed font-mono">
+                Layer 1: GalacticRouteKey &bull; Layer 2: QuadrantData &bull; Layer 3: StarSystemData &bull; Layer 4: PlanetOrbitData &bull; Layer 5: SurfaceSectorData &bull; Layer 6: SubGridCoordinate(42, 88).
+              </p>
+              <div class="flex flex-wrap gap-2 pt-1">
+                <button onclick="testSixLayerMatch()" class="px-3.5 py-1.5 text-xs font-bold rounded bg-emerald-500 hover:bg-emerald-400 text-black transition">
+                  Test 6-Layer Match (O(1) Hash Lookup)
+                </button>
+                <button onclick="testSixLayerMismatch()" class="px-3.5 py-1.5 text-xs font-bold rounded bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/30 transition">
+                  Test Mismatch Rejection (Y:89 vs Y:88)
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── Live Event Console (Bottom) ── -->
+        <div class="border-t border-white/10 p-4 bg-slate-950/90">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold font-mono text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="terminal" class="w-3.5 h-3.5 text-cyan-400"></i> Reactive Mutation & Event Feed:
+            </span>
+            <button onclick="state.eventLogs = []; renderLogs();" class="text-[10px] text-slate-400 hover:text-white transition font-mono">
+              Clear Log
+            </button>
+          </div>
+          <div id="event-logs-container" class="space-y-1 max-h-36 overflow-y-auto pr-1"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Performance & Benchmarks ───────────────────────────────────────────── -->
+  <section id="benchmarks" class="py-20 relative z-10 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto">
+        <span class="text-xs font-mono font-semibold tracking-wider uppercase text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+          Architecture & Performance
+        </span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Benchmark & Feature Comparison
+        </h2>
+        <p class="mt-3 text-sm text-slate-400">
+          How EngineEdge SmartDictionary Pro compares against existing Unity dictionary solutions.
+        </p>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="mt-12 overflow-x-auto">
+        <table class="w-full text-left text-xs font-mono border-collapse glass-card rounded-xl overflow-hidden">
+          <thead>
+            <tr class="border-b border-white/10 bg-slate-900/80 text-slate-300">
+              <th class="p-4 font-bold text-white">Feature / Metric</th>
+              <th class="p-4 font-bold text-cyan-400">EngineEdge SmartDictionary Pro</th>
+              <th class="p-4 font-semibold text-slate-400">Standard SerializedDict</th>
+              <th class="p-4 font-semibold text-slate-400">Odin Serializer</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-4 font-semibold text-white">Base Collection YAML Overhead</td>
+              <td class="p-4 text-emerald-400 font-bold">0 Event Delegates (Clean YAML)</td>
+              <td class="p-4 text-slate-400">Clean YAML</td>
+              <td class="p-4 text-amber-400">Custom Binary/Odin YAML</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-4 font-semibold text-white">Reactive Observable Delegates</td>
+              <td class="p-4 text-emerald-400 font-bold">C# Actions + UnityEvents</td>
+              <td class="p-4 text-rose-400">No Events</td>
+              <td class="p-4 text-slate-400">Partial</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-4 font-semibold text-white">Custom Class Keys (Value Equality)</td>
+              <td class="p-4 text-emerald-400 font-bold">IEquatable + Deep Hashing</td>
+              <td class="p-4 text-rose-400">Pointer Equality Bug</td>
+              <td class="p-4 text-emerald-400">Supported</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-4 font-semibold text-white">Deep Hierarchies (Up to 6-10 Layers)</td>
+              <td class="p-4 text-emerald-400 font-bold">Full 6-Layer Verified</td>
+              <td class="p-4 text-rose-400">Prone to Depth Overflows</td>
+              <td class="p-4 text-emerald-400">Supported</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-4 font-semibold text-white">Dynamic Multi-Line Row Height</td>
+              <td class="p-4 text-emerald-400 font-bold">Pixel-Accurate (Zero Clipping)</td>
+              <td class="p-4 text-rose-400">Overlaps / Clipped Rows</td>
+              <td class="p-4 text-emerald-400">Custom Odin Drawer</td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="p-4 font-semibold text-white">Included Collection Types</td>
+              <td class="p-4 text-cyan-400 font-bold">8 Collections (Dict, Set, Stack, Queue, Ordered, BiDict)</td>
+              <td class="p-4 text-slate-400">1 (Dictionary Only)</td>
+              <td class="p-4 text-slate-400">Generic Collections</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Quick Start & Code Snippets ─────────────────────────────────────────── -->
+  <section id="docs" class="py-20 relative z-10 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto">
+        <span class="text-xs font-mono font-semibold tracking-wider uppercase text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+          Quick Start Guide
+        </span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Drop-in C# Integration in Minutes
+        </h2>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Code Snippet 1 -->
+        <div class="glass-card-static rounded-xl overflow-hidden border border-white/10">
+          <div class="px-4 py-2.5 bg-slate-900 border-b border-white/5 flex items-center justify-between">
+            <span class="text-xs font-mono text-cyan-400 font-semibold">1. Defining Class Keys & Struct Values</span>
+            <span class="text-[10px] text-slate-500 font-mono">C#</span>
+          </div>
+          <pre class="p-4 text-xs font-mono text-slate-300 overflow-x-auto leading-relaxed"><code><span class="text-purple-400">using</span> UnityEngine;
+<span class="text-purple-400">using</span> EngineEdge.SmartDictionary;
+
+<span class="text-blue-400">[System.Serializable]</span>
+<span class="text-purple-400">public class</span> <span class="text-amber-300">HeroStatsDatabase</span> : <span class="text-cyan-300">MonoBehaviour</span>
+{
+    <span class="text-slate-500">// Reactive dictionary with full inspector & event support</span>
+    <span class="text-purple-400">public</span> <span class="text-cyan-300">ObservableDictionary</span>&lt;<span class="text-amber-300">CharacterProfile</span>, <span class="text-emerald-300">CombatStats</span>&gt; heroStats;
+
+    <span class="text-purple-400">void</span> <span class="text-blue-300">OnEnable</span>()
+    {
+        heroStats.OnEntryAdded += (hero, stats) => 
+            <span class="text-cyan-300">Debug</span>.Log($<span class="text-emerald-400">"Hero registered: {hero} with ATK: {stats.attackPower}"</span>);
+    }
+}</code></pre>
+        </div>
+
+        <!-- Code Snippet 2 -->
+        <div class="glass-card-static rounded-xl overflow-hidden border border-white/10">
+          <div class="px-4 py-2.5 bg-slate-900 border-b border-white/5 flex items-center justify-between">
+            <span class="text-xs font-mono text-cyan-400 font-semibold">2. LINQ, Safe Access & Bidirectional Lookup</span>
+            <span class="text-[10px] text-slate-500 font-mono">C#</span>
+          </div>
+          <pre class="p-4 text-xs font-mono text-slate-300 overflow-x-auto leading-relaxed"><code><span class="text-slate-500">// Safe access without KeyNotFound exceptions</span>
+<span class="text-purple-400">var</span> stats = heroStats.<span class="text-blue-300">GetOrDefault</span>(lookupKey, <span class="text-purple-400">new</span> <span class="text-emerald-300">CombatStats</span>());
+
+<span class="text-slate-500">// O(1) Bidirectional Lookup</span>
+<span class="text-purple-400">var</span> biDict = <span class="text-purple-400">new</span> <span class="text-cyan-300">SerializableBiDictionary</span>&lt;<span class="text-amber-300">PlayerBadge</span>, <span class="text-purple-400">string</span>&gt;();
+<span class="text-purple-400">string</span> owner = biDict.<span class="text-blue-300">GetByKey</span>(badge);
+<span class="text-amber-300">PlayerBadge</span> badge = biDict.<span class="text-blue-300">GetByValue</span>(<span class="text-emerald-400">"Player_Alpha"</span>);
+
+<span class="text-slate-500">// LINQ Extensions</span>
+<span class="text-purple-400">int</span> totalQty = inventory.<span class="text-blue-300">SumValues</span>();</code></pre>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Upcoming Product Suite ──────────────────────────────────────────────── -->
+  <section class="py-20 relative z-10 border-t border-white/5 bg-[#0A0E18]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto">
+        <span class="text-xs font-mono font-semibold tracking-wider uppercase text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
+          Product Roadmap
+        </span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          More from the <span class="gradient-text-cyan">EngineEdge</span> Ecosystem
+        </h2>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div class="glass-card p-6 rounded-xl">
+          <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-4">
+            <i data-lucide="cloud-lightning" class="w-5 h-5"></i>
+          </div>
+          <span class="text-[10px] font-mono font-bold text-blue-400 uppercase tracking-wider bg-blue-500/10 px-2 py-0.5 rounded">Coming Soon</span>
+          <h3 class="font-bold text-lg text-white mt-2">SmartSave Cloud</h3>
+          <p class="text-xs text-slate-400 mt-2">
+            Zero-friction cross-platform encrypted saving for Unity with cloud syncing, PlayerPrefs fallbacks, and binary Delta compression.
+          </p>
+        </div>
+
+        <div class="glass-card p-6 rounded-xl">
+          <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4">
+            <i data-lucide="workflow" class="w-5 h-5"></i>
+          </div>
+          <span class="text-[10px] font-mono font-bold text-purple-400 uppercase tracking-wider bg-purple-500/10 px-2 py-0.5 rounded">Coming Soon</span>
+          <h3 class="font-bold text-lg text-white mt-2">SmartState Machine</h3>
+          <p class="text-xs text-slate-400 mt-2">
+            Hierarchical visual state machines for Unity characters, AI behavior trees, and UI flow management with live debugger overlays.
+          </p>
+        </div>
+
+        <div class="glass-card p-6 rounded-xl">
+          <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4">
+            <i data-lucide="radio" class="w-5 h-5"></i>
+          </div>
+          <span class="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2 py-0.5 rounded">Coming Soon</span>
+          <h3 class="font-bold text-lg text-white mt-2">SmartEvents Bus</h3>
+          <p class="text-xs text-slate-400 mt-2">
+            Type-safe, decoupled pub/sub message bus for game architectures with zero runtime boxing and automated subscriber cleanup.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Footer ─────────────────────────────────────────────────────────────── -->
+  <footer class="py-12 relative z-10 border-t border-white/10 bg-[#06080D] text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+      
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-black text-sm">
+          ⚡
+        </div>
+        <span class="font-extrabold text-slate-300 text-sm">
+          Engine<span class="text-cyan-400">Edge</span>
+        </span>
+        <span class="text-slate-600">&bull;</span>
+        <span>&copy; 2026 EngineEdge. Released under MIT License.</span>
+      </div>
+
+      <div class="flex items-center gap-6 font-mono text-slate-400">
+        <a href="#playground" class="hover:text-cyan-400 transition">Playground</a>
+        <a href="#docs" class="hover:text-cyan-400 transition">Docs</a>
+        <a href="https://github.com" target="_blank" class="hover:text-cyan-400 transition flex items-center gap-1">
+          <i data-lucide="github" class="w-4 h-4"></i> GitHub
+        </a>
+        <a href="https://assetstore.unity.com" target="_blank" class="hover:text-cyan-400 transition flex items-center gap-1">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i> Asset Store
+        </a>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ── JavaScript Scripts ──────────────────────────────────────────────────── -->
+  <script src="playground.js"></script>
+  <script>
+    // Initialize Lucide Vector Icons
+    lucide.createIcons();
+
+    // Mobile Menu Toggle
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (mobileBtn && mobileMenu) {
+      mobileBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+  </script>
+</body>
+</html>
